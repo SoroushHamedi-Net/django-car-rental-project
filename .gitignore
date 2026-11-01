@@ -28,3 +28,6 @@ media/
 .vscode/
 .idea/
 *.swp
+
+scripts/*.min.js
+scripts/mermaid.min.js

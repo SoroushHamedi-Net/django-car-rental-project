@@ -1,6 +1,6 @@
 # مستندات فرآیندهای کسب‌وکار سامانه اجاره خودرو (Car Rental System)
 
-این سند شامل نمودارهای جریان فرآیندی (Process Diagrams) برای ۴ فرآیند اصلی، پیچیده و غیربدیهی سامانه مدیریت اجاره خودرو است. این نمودارها مطابق با الزامات پروژه درس طراحی سیستم‌های تحت وب و با استاندارد Mermaid.js به همراه تفکیک نقش‌ها (Swimlanes/Subgraphs)، نقاط تصمیم‌گیری (Decision Points) و شرایط خطا تدوین شده‌اند.
+این سند شامل نمودارهای جریان فرآیندی (Process Diagrams) برای ۴ فرآیند اصلی، پیچیده و غیربدیهی سامانه مدیریت اجاره خودرو است. این نمودارها با استفاده از فونت‌های بومی و استاندارد فارسی (**وزیرمتن** و **تاهما**) در محیط ویندوز با کیفیت بالا رندر شده و نسخه برداری تعاملی Mermaid نیز در زیر هر فرآیند پیوست شده است.
 
 ---
 
@@ -36,6 +36,9 @@
 ### ۱.۴. نمودار فرآیند (Process Diagram 1)
 
 ![نمودار ثبت درخواست اجاره](diagrams/process_1_rental_request.png)
+
+<details>
+<summary><b>🔍 مشاهده نسخه تعاملی نمودار (Mermaid Vector)</b></summary>
 
 ```mermaid
 flowchart TD
@@ -74,10 +77,11 @@ flowchart TD
     B4 --> B5
     B5 --> B6
     B6 --> DB2
-    B6 --> B7
-    B7 --> DB3
-    B7 --> A10
+    B6 --> DB3
+    DB3 --> A10
 ```
+
+</details>
 
 ---
 
@@ -103,6 +107,9 @@ flowchart TD
 ### ۲.۴. نمودار فرآیند (Process Diagram 2)
 
 ![نمودار بررسی و تأیید درخواست توسط مدیر](diagrams/process_2_manager_review.png)
+
+<details>
+<summary><b>🔍 مشاهده نسخه تعاملی نمودار (Mermaid Vector)</b></summary>
 
 ```mermaid
 flowchart TD
@@ -145,6 +152,8 @@ flowchart TD
     C2 --> C3
 ```
 
+</details>
+
 ---
 
 ## ۳. فرآیند لغو درخواست اجاره توسط مشتری و آزادسازی منابع سیستم
@@ -171,7 +180,10 @@ flowchart TD
 
 ### ۳.۴. نمودار فرآیند (Process Diagram 3)
 
-![نمودار لغو درخواست اجاره توسط مشتری](diagrams/process_3_customer_cancellation.png)
+![نمودار لغو درخواست اجاره توسط مشتری](diagrams/process_3_cancellation.png)
+
+<details>
+<summary><b>🔍 مشاهده نسخه تعاملی نمودار (Mermaid Vector)</b></summary>
 
 ```mermaid
 flowchart TD
@@ -209,6 +221,8 @@ flowchart TD
     V7 --> M_NOTIF
 ```
 
+</details>
+
 ---
 
 ## ۴. فرآیند بازگشت خودرو، بازرسی فنی و مدیریت چرخه وضعیت تعمیرگاه
@@ -236,7 +250,10 @@ flowchart TD
 
 ### ۴.۴. نمودار فرآیند (Process Diagram 4)
 
-![نمودار بازگشت خودرو و مدیریت تعمیرگاه](diagrams/process_4_vehicle_return_maintenance.png)
+![نمودار بازگشت خودرو و مدیریت تعمیرگاه](diagrams/process_4_vehicle_return.png)
+
+<details>
+<summary><b>🔍 مشاهده نسخه تعاملی نمودار (Mermaid Vector)</b></summary>
 
 ```mermaid
 flowchart TD
@@ -286,6 +303,8 @@ flowchart TD
     SYS_CLOSE --> SYS_LOG
     SYS_LOG --> R6
 ```
+
+</details>
 
 ---
 
