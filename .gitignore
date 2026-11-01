@@ -1,0 +1,30 @@
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environment variables
+.env
+
+# Git template
+.gitmessage
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Media files (user uploads)
+media/
+!media/.gitkeep
+
+# IDE files
+.vscode/
+.idea/
+*.swp
