@@ -2,7 +2,7 @@
 > **پروژه پایانی درس طراحی سیستم‌های تحت وب - دانشگاهی**  
 > **توسعه‌دهندگان (Pair Programming):**  
 > - **سروش حامدی** (`SoroushHamedi-Net`) - <soroush.hamedi.cs@gmail.com>  
-> - **نورا اسفرد** (`Noora-NF`) - <norasfardnoora@gmail.com>  
+> - **نورا نورس فرد** (`Noora-NF`) - <norasfardnoora@gmail.com>  
 
 ---
 
