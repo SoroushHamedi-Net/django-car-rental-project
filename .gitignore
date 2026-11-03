@@ -31,3 +31,7 @@ media/
 
 scripts/*.min.js
 scripts/mermaid.min.js
+
+# NotebookLM Study Guides
+PHASE1_CODE_AND_EXPLANATION_FA.md
+

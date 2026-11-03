@@ -1,7 +1,7 @@
 import os
 import sys
+import re
 import subprocess
-import time
 from pathlib import Path
 from PIL import Image, ImageChops
 
@@ -13,174 +13,191 @@ if sys.platform.startswith('win'):
 
 DIAGRAMS = {
     "process_1": {
-        "targets": ["process_1_rental_request.png"],
-        "code": """flowchart TD
+        "title": "فرآیند ۱: ثبت درخواست اجاره خودرو و بررسی هوشمند تداخل زمانی و موجودی",
+        "targets_png": ["process_1_rental_request.png"],
+        "target_svg": "process_1_rental_request.svg",
+        "code": """flowchart LR
     subgraph Customer ["👤 مشتری (Customer)"]
-        A1["انتخاب خودرو و ورود به صفحه جزئیات"] --> A2["تعیین بازه تاریخی (start_date, end_date)"]
-        A2 --> A3["کلیک روی دکمه ثبت درخواست اجاره"]
-        A8["مشاهده پیام خطای تاریخ / فرم"]
-        A9["مشاهده پیام خطای تداخل زمانی"]
-        A10["مشاهده پیش‌فاکتور و کد پیگیری قرارداد (وضعیت PENDING)"]
+        direction TB
+        A1["انتخاب خودرو و<br/>مشاهده جزئیات فنی"] --> A2["تعیین بازه زمانی اجاره<br/>(start_date تا end_date)"]
+        A2 --> A3["ارسال فرم و ثبت نهایی<br/>درخواست اولیه"]
+        A_ERR["نمایش خطای تاریخ /<br/>تداخل بازه زمانی"]
+        A_OK["مشاهده پیش‌فاکتور و<br/>کد پیگیری (PENDING)"]
     end
 
-    subgraph System ["⚙️ موتور اعتبارسنجی سیستم (System)"]
-        B1{"آیا تاریخ‌ها معتبر هستند؟<br/>(start >= today & end > start)"}
-        B2{"آیا خودرو در وضعیت AVAILABLE است؟"}
-        B3{"آیا تداخل زمانی با قراردادهای دیگر دارد؟<br/>(Date Overlap Query)"}
-        B4["محاسبه روزها و هزینه کل (days * daily_price)"]
-        B5["ایجاد شناسه یکتای قرارداد (contract_code)"]
-        B6["ذخیره رکورد RentalContract با وضعیت PENDING"]
-        B7["ثبت لاگ اعلان برای مشتری و مدیر (NotificationLog)"]
+    subgraph System ["⚙️ موتور اعتبارسنجی (Core)"]
+        direction TB
+        B1{"صحت تاریخ‌ها؟<br/>(امروز <= شروع < پایان)"}
+        B2{"وضعیت خودرو؟<br/>(AVAILABLE)"}
+        B3{"تداخل با رزروهای دیگر؟<br/>(Date Overlap Query)"}
+        B4["محاسبه مبلغ کل اجاره<br/>(days × daily_price)"]
+        B5["تولید کد یکتا و ایجاد<br/>RentalContract (PENDING)"]
+        B6["ثبت لاگ و ارسال اعلان<br/>(NotificationLog)"]
     end
 
     subgraph Database ["🗄️ پایگاه‌داده (PostgreSQL)"]
-        DB1[("جدول fleet_car")]
-        DB2[("جدول rentals_rentalcontract")]
-        DB3[("جدول core_notificationlog")]
+        direction TB
+        DB_CAR[("جدول ناوگان<br/>fleet_car")]
+        DB_RENTAL[("جدول قراردادها<br/>rentals_rentalcontract")]
+        DB_LOG[("جدول اعلان‌ها<br/>core_notificationlog")]
     end
 
     A3 --> B1
-    B1 -- "خیر (خطای تاریخ)" --> A8
-    B1 -- "بله" --> B2
-    B2 -- "خیر (خودرو در تعمیرگاه)" --> A8
-    B2 -- "بله" --> DB1
-    DB1 -. بررسی وضعیت .-> B3
-    B3 -- "بله (تداخل دارد)" --> A9
-    B3 -- "خیر (آزاد است)" --> B4
-    B4 --> B5
-    B5 --> B6
-    B6 --> DB2
-    B6 --> DB3
-    DB3 --> A10
+    B1 -- "نامعتبر" --> A_ERR
+    B1 -- "معتبر" --> B2
+    B2 -- "در تعمیرگاه" --> A_ERR
+    B2 -- "آماده" --> DB_CAR
+    DB_CAR -. استعلام تقویم .-> B3
+    B3 -- "تداخل دارد" --> A_ERR
+    B3 -- "آزاد" --> B4 --> B5
+    B5 --> DB_RENTAL
+    B5 --> B6 --> DB_LOG
+    B6 --> A_OK
+
+    classDef default fill:#ffffff,stroke:#1e40af,stroke-width:2.5px,color:#0f172a;
+    classDef decision fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#78350f;
+    classDef error fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#991b1b;
+    classDef success fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#14532d;
+    classDef db fill:#f0fdf4,stroke:#059669,stroke-width:2px,color:#064e3b;
+    class B1,B2,B3 decision;
+    class A_ERR error;
+    class A_OK success;
+    class DB_CAR,DB_RENTAL,DB_LOG db;
 """
     },
     "process_2": {
-        "targets": ["process_2_manager_review.png"],
-        "code": """flowchart TD
+        "title": "فرآیند ۲: بررسی، تأیید یا رد درخواست اجاره توسط مدیر، صدور قرارداد و ارسال اعلان",
+        "targets_png": ["process_2_manager_review.png"],
+        "target_svg": "process_2_manager_review.svg",
+        "code": """flowchart LR
     subgraph Manager ["👨‍💼 مدیر سامانه (Manager)"]
-        M1["مشاهده کارتابل درخواست‌های معلق (PENDING)"] --> M2["انتخاب درخواست و بررسی اطلاعات و مدارک مشتری"]
-        M2 --> M3{"تصمیم مدیر چیست؟"}
-        M4["ثبت رد درخواست + درج دلیل در manager_note"]
-        M5["ثبت تأیید درخواست + درج توضیحات تحویل"]
+        direction TB
+        M1["مشاهده کارتابل درخواست‌های<br/>معلق (وضعیت PENDING)"] --> M2["بررسی مدارک و پیشینه<br/>مشتری متقاضی"]
+        M2 --> M_DEC{"تصمیم مدیر؟"}
+        M_REJ["ثبت رد درخواست +<br/>درج دلیل در manager_note"]
+        M_APP["ثبت تأیید درخواست +<br/>دستورالعمل تحویل"]
     end
 
     subgraph System ["⚙️ سیستم مرکزی (Django Core)"]
-        S1["شروع تراکنش اتمیک دیتابیس (Atomic Transaction)"]
-        S2{"بررسی مجدد تداخل همزمان (Race Condition Check)"}
-        S3["تغییر وضعیت به REJECTED و آزادسازی تقویم خودرو"]
-        S4["تغییر وضعیت به APPROVED و قفل قطعی بازه زمانی"]
-        S5["تنظیم وضعیت خودرو به RENTED در تقویم ناوگان"]
-        S6["تولید و ثبت اعلان ایمیلی و پیامکی رسمی"]
-        S7["ارسال نوتیفیکیشن نتیجه به داشبورد و گوشی مشتری"]
+        direction TB
+        S_ATOMIC["آغاز تراکنش اتمیک<br/>(transaction.atomic)"]
+        S_CHECK{"بررسی تداخل همزمان؟<br/>(Race Condition Check)"}
+        S_SET_REJ["تغییر وضعیت به REJECTED<br/>و آزادسازی تقویم خودرو"]
+        S_SET_APP["تغییر وضعیت به APPROVED<br/>و قفل قطعی بازه زمانی"]
+        S_CAR_STATUS["تنظیم وضعیت خودرو به RENTED<br/>در تقویم ناوگان"]
+        S_NOTIF["تولید و ثبت اعلان رسمی<br/>(ایمیل و پیامک OTP/اطلاع‌رسانی)"]
     end
 
     subgraph Customer ["👤 مشتری (Customer)"]
-        C1["دریافت پیامک/ایمیل رد درخواست به همراه دلیل مدیر"]
-        C2["دریافت پیامک/ایمیل تأیید قرارداد + دستورالعمل تحویل خودرو"]
-        C3["مشاهده وضعیت APPROVED در داشبورد کاربری"]
+        direction TB
+        C_REJ["دریافت پیامک رد درخواست<br/>به همراه دلیل مدیر"]
+        C_APP["دریافت پیامک تأیید رزرو +<br/>دستورالعمل تحویل خودرو"]
+        C_DASH["مشاهده قرارداد فعال و<br/>پیش‌فاکتور در داشبورد"]
     end
 
-    M3 -- "رد درخواست" --> M4
-    M4 --> S3
-    S3 --> S6
-    S6 --> C1
+    M_DEC -- "رد درخواست" --> M_REJ --> S_SET_REJ --> S_NOTIF --> C_REJ
+    M_DEC -- "تأیید درخواست" --> M_APP --> S_ATOMIC --> S_CHECK
+    S_CHECK -- "تداخل همزمان" --> M1
+    S_CHECK -- "بدون تداخل" --> S_SET_APP --> S_CAR_STATUS --> S_NOTIF --> C_APP --> C_DASH
 
-    M3 -- "تأیید درخواست" --> M5
-    M5 --> S1
-    S1 --> S2
-    S2 -- "خطای تداخل همزمان" --> M1
-    S2 -- "بدون تداخل" --> S4
-    S4 --> S5
-    S5 --> S6
-    S6 --> C2
-    C2 --> C3
+    classDef default fill:#ffffff,stroke:#1e40af,stroke-width:2.5px,color:#0f172a;
+    classDef decision fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#78350f;
+    classDef error fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#991b1b;
+    classDef success fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#14532d;
+    class M_DEC,S_CHECK decision;
+    class M_REJ,C_REJ error;
+    class S_SET_APP,C_APP,C_DASH success;
 """
     },
     "process_3": {
-        "targets": ["process_3_cancellation.png", "process_3_customer_cancellation.png"],
-        "code": """flowchart TD
+        "title": "فرآیند ۳: لغو درخواست اجاره توسط مشتری و آزادسازی منابع سیستم",
+        "targets_png": ["process_3_cancellation.png", "process_3_customer_cancellation.png"],
+        "target_svg": "process_3_cancellation.svg",
+        "code": """flowchart LR
     subgraph Customer ["👤 مشتری (Customer)"]
-        U1["ورود به داشبورد و بخش «سفارش‌های من»"] --> U2["انتخاب قرارداد و کلیک روی دکمه «لغو درخواست»"]
-        U2 --> U3["تأیید پیام هشدار انصراف و درج دلیل اختیاری"]
-        U6["نمایش خطای عدم امکان لغو (موعد گذشته یا وضعیت غیرمجاز)"]
-        U7["مشاهده وضعیت CANCELLED و دریافت پیام موفقیت"]
+        direction TB
+        U1["ورود به داشبورد و<br/>بخش سفارش‌های من"] --> U2["انتخاب قرارداد و<br/>کلیک روی لغو درخواست"]
+        U2 --> U3["تأیید هشدار انصراف و<br/>درج دلیل اختیاری"]
+        U_ERR["نمایش خطای عدم امکان لغو<br/>(موعد گذشته یا وضعیت غیرمجاز)"]
+        U_OK["مشاهده وضعیت CANCELLED و<br/>دریافت پیامک تأیید لغو"]
     end
 
-    subgraph System ["⚙️ سیستم مرکزی (Django Core)"]
-        V1{"آیا قرارداد در وضعیت PENDING یا APPROVED است؟"}
-        V2{"آیا تاریخ جاری قبل از تاریخ شروع (start_date) است؟"}
+    subgraph System ["⚙️ موتور اعتبارسنجی لغو (Core)"]
+        direction TB
+        V1{"وضعیت مجاز است؟<br/>(PENDING یا APPROVED)"}
+        V2{"موعد تحویل فرا نرسیده؟<br/>(تاریخ جاری < start_date)"}
         V3["آغاز عملیات آزادسازی منابع"]
-        V4["به‌روزرسانی فیلد status به CANCELLED"]
-        V5["آزاد نمودن بازه زمانی تقویم خودرو در پایگاه‌داده"]
-        V6["ثبت تراکنش در جدول NotificationLog"]
-        V7["تولید پیامک اطلاع‌رسانی لغو"]
+        V4["به‌روزرسانی فیلد وضعیت<br/>به CANCELLED"]
+        V5["آزاد نمودن بازه تقویم خودرو<br/>در پایگاه‌داده"]
+        V6["ثبت تراکنش در جدول لاگ و<br/>ارسال پیامک اطلاع‌رسانی"]
     end
 
     subgraph Manager ["👨‍💼 مدیر ناوگان (Manager)"]
-        M_NOTIF["دریافت هشدار لغو سفارش و آماده‌سازی خودرو برای متقاضیان جدید"]
+        direction TB
+        M_NOTIF["دریافت هشدار لغو در کارتابل و<br/>آماده‌سازی خودرو برای متقاضیان جدید"]
     end
 
     U3 --> V1
-    V1 -- "خیر" --> U6
+    V1 -- "خیر" --> U_ERR
     V1 -- "بله" --> V2
-    V2 -- "خیر (موعد تحویل فرا رسیده)" --> U6
-    V2 -- "بله (مجاز به لغو)" --> V3
-    V3 --> V4
-    V4 --> V5
-    V5 --> V6
-    V6 --> V7
-    V7 --> U7
-    V7 --> M_NOTIF
+    V2 -- "خیر (موعد رسیده)" --> U_ERR
+    V2 -- "بله (مجاز)" --> V3 --> V4 --> V5
+    V5 --> U_OK
+    V5 --> M_NOTIF
+
+    classDef default fill:#ffffff,stroke:#1e40af,stroke-width:2.5px,color:#0f172a;
+    classDef decision fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#78350f;
+    classDef error fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#991b1b;
+    classDef success fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#14532d;
+    class V1,V2 decision;
+    class U_ERR error;
+    class U_OK success;
 """
     },
     "process_4": {
-        "targets": ["process_4_vehicle_return.png", "process_4_vehicle_return_maintenance.png"],
-        "code": """flowchart TD
+        "title": "فرآیند ۴: بازگشت خودرو، بازرسی فنی و مدیریت چرخه وضعیت تعمیرگاه",
+        "targets_png": ["process_4_vehicle_return.png", "process_4_vehicle_return_maintenance.png"],
+        "target_svg": "process_4_vehicle_return.svg",
+        "code": """flowchart LR
     subgraph Customer ["👤 مشتری (Customer)"]
-        R1["تحویل فیزیکی خودرو و کلید به شعبه"]
-        R6["دریافت فاکتور تسویه‌حساب نهایی و پیامک پایان قرارداد"]
+        direction TB
+        R1["تحویل فیزیکی خودرو و<br/>سوئیچ به ایستگاه"]
+        R_END["دریافت فاکتور تسویه نهایی<br/>و پیامک اتمام قرارداد"]
     end
 
-    subgraph Manager ["👨‍💼 مدیر / کارشناس ناوگان (Manager)"]
-        M_REV1["ثبت کیلومتر پیموده شده و زمان دقیق ورود"]
-        M_CHECK{"آیا خودرو آسیب دیده یا نیاز به سرویس دوره‌ای دارد؟"}
-        M_MAINT["تنظیم وضعیت خودرو به MAINTENANCE و ارجاع به تعمیرگاه"]
-        M_MAINT_DONE["پایان سرویس تعمیرگاه و بازگردانی وضعیت به AVAILABLE"]
-        M_OK["تأیید سلامت خودرو و تنظیم وضعیت به AVAILABLE"]
-        M_FIN["بستن قرارداد و ثبت وضعیت COMPLETED"]
+    subgraph Manager ["👨‍💼 کارشناس فنی / مدیر (Manager)"]
+        direction TB
+        M_REC["ثبت کیلومتر پیموده شده،<br/>باک سوخت و زمان دقیق ورود"]
+        M_INSPECT{"نتیجه بازرسی فنی و بدنه؟"}
+        M_MAINT["تنظیم وضعیت خودرو به MAINTENANCE<br/>و ارجاع به تعمیرگاه"]
+        M_MAINT_DONE["پایان سرویس و بازگردانی<br/>وضعیت به AVAILABLE"]
+        M_OK["تأیید سلامت کامل خودرو و<br/>تنظیم وضعیت به AVAILABLE"]
+        M_FIN["بستن قرارداد و تغییر وضعیت<br/>به COMPLETED"]
     end
 
-    subgraph System ["⚙️ سیستم مرکزی (Django Core)"]
-        SYS_LATE{"آیا موعد تحویل دارای تأخیر زمانی است؟"}
-        SYS_CALC_FINE["محاسبه جریمه دیرکرد و به‌روزرسانی فاکتور"]
-        SYS_CLOSE["به‌روزرسانی وضعیت RentalContract به COMPLETED"]
-        SYS_LOG["ثبت لاگ پایان قرارداد و ارسال اعلان به مشتری"]
+    subgraph System ["⚙️ سیستم مرکزی (Core)"]
+        direction TB
+        SYS_DELAY{"آیا دارای تأخیر زمانی است؟<br/>(تحویل > end_date)"}
+        SYS_FINE["محاسبه جریمه دیرکرد روزانه<br/>و به‌روزرسانی فاکتور نهایی"]
+        SYS_CLOSE["به‌روزرسانی قرارداد به COMPLETED<br/>در جدول دیتابیس"]
+        SYS_LOG["ثبت لاگ پایان قرارداد و<br/>ارسال اعلان پیامکی به مشتری"]
     end
 
-    subgraph Database ["🗄️ پایگاه‌داده (PostgreSQL)"]
-        DB_CAR[("جدول fleet_car")]
-        DB_RENTAL[("جدول rentals_rentalcontract")]
-    end
+    R1 --> M_REC --> SYS_DELAY
+    SYS_DELAY -- "بله (دارای دیرکرد)" --> SYS_FINE --> M_INSPECT
+    SYS_DELAY -- "خیر (سروقت)" --> M_INSPECT
+    M_INSPECT -- "نیاز به تعمیر" --> M_TO_MAINT
+    M_TO_MAINT -. پس از تعمیرات .-> M_MAINT_DONE --> M_FIN
+    M_INSPECT -- "سالم" --> M_OK --> M_FIN
+    M_FIN --> SYS_CLOSE --> SYS_LOG --> R_END
 
-    R1 --> M_REV1
-    M_REV1 --> SYS_LATE
-    SYS_LATE -- "بله (دارای دیرکرد)" --> SYS_CALC_FINE
-    SYS_CALC_FINE --> M_CHECK
-    SYS_LATE -- "خیر (سروقت)" --> M_CHECK
-
-    M_CHECK -- "بله (نیاز به تعمیر)" --> M_MAINT
-    M_MAINT --> DB_CAR
-    M_MAINT -. پس از تعمیرات .-> M_MAINT_DONE
-    M_MAINT_DONE --> DB_CAR
-
-    M_CHECK -- "خیر (سالم است)" --> M_OK
-    M_OK --> DB_CAR
-
-    M_CHECK --> M_FIN
-    M_FIN --> SYS_CLOSE
-    SYS_CLOSE --> DB_RENTAL
-    SYS_CLOSE --> SYS_LOG
-    SYS_LOG --> R6
+    classDef default fill:#ffffff,stroke:#1e40af,stroke-width:2.5px,color:#0f172a;
+    classDef decision fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#78350f;
+    classDef error fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#991b1b;
+    classDef success fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#14532d;
+    class SYS_DELAY,M_INSPECT decision;
+    class M_TO_MAINT error;
+    class M_MAINT_DONE,M_OK,M_FIN,R_END success;
 """
     }
 }
@@ -197,7 +214,7 @@ def find_browser():
             return path
     return None
 
-def crop_diagram(image_path, pad=30):
+def crop_diagram(image_path, pad=35):
     try:
         im = Image.open(image_path)
         bg = Image.new(im.mode, im.size, (255, 255, 255))
@@ -212,12 +229,12 @@ def crop_diagram(image_path, pad=30):
             )
             cropped = im.crop(crop_box)
             cropped.save(image_path, "PNG", optimize=True)
-            return True
+            return cropped.size
     except Exception as e:
         print(f"  Warning during cropping {image_path}: {e}")
-    return False
+    return None
 
-def export_diagrams_locally():
+def export_all_diagrams():
     browser = find_browser()
     if not browser:
         print("ERROR: Neither Microsoft Edge nor Google Chrome was found on this system.")
@@ -230,18 +247,16 @@ def export_diagrams_locally():
     out_dir = base_dir / "docs" / "diagrams"
     out_dir.mkdir(parents=True, exist_ok=True)
     
-    # Path to local mermaid.min.js
-    local_mermaid = scripts_dir / "mermaid.min.js"
-    mermaid_src = local_mermaid.as_uri() if local_mermaid.exists() else "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"
-
     for key, data in DIAGRAMS.items():
-        targets = data["targets"]
+        targets_png = data["targets_png"]
+        target_svg = data["target_svg"]
         code = data["code"]
-        primary_target = targets[0]
-        primary_path = out_dir / primary_target
-        temp_html_path = scripts_dir / f"temp_{key}.html"
+        title = data["title"]
+        primary_png = out_dir / targets_png[0]
+        svg_path = out_dir / target_svg
+        temp_html_path = scripts_dir / f"render_{key}.html"
         
-        print(f"\n[+] Rendering {key} -> {primary_target}...")
+        print(f"\n[+] Rendering {key}: {title}...")
         
         html_content = f"""<!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -260,40 +275,66 @@ html, body {{
     padding: 30px;
     direction: rtl;
     display: inline-block;
+    width: auto;
 }}
 .mermaid {{
+    display: inline-block;
     font-family: 'Vazirmatn', Tahoma, 'Segoe UI', Arial, sans-serif;
-    font-size: 15px;
+    font-size: 22px;
     direction: rtl;
     text-align: center;
+    width: max-content !important;
 }}
 .mermaid svg {{
     max-width: none !important;
-    height: auto !important;
     font-family: 'Vazirmatn', Tahoma, 'Segoe UI', Arial, sans-serif !important;
 }}
 .nodeLabel, .edgeLabel, .cluster-label, span.nodeLabel {{
     font-family: 'Vazirmatn', Tahoma, 'Segoe UI', Arial, sans-serif !important;
-    font-weight: 500 !important;
+    font-size: 20px !important;
+    font-weight: 600 !important;
+}}
+.cluster-label span {{
+    font-size: 22px !important;
+    font-weight: 700 !important;
 }}
 </style>
-<script src="{mermaid_src}"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <script>
 mermaid.initialize({{
     startOnLoad: true,
-    theme: 'default',
-    fontFamily: 'Vazirmatn, Tahoma, "Segoe UI", Arial, sans-serif',
+    theme: 'base',
     themeVariables: {{
         fontFamily: 'Vazirmatn, Tahoma, "Segoe UI", Arial, sans-serif',
-        fontSize: '15px',
-        primaryColor: '#e8f0fe',
-        primaryTextColor: '#1a73e8',
-        lineColor: '#5f6368'
+        fontSize: '22px',
+        primaryColor: '#ffffff',
+        primaryTextColor: '#0f172a',
+        primaryBorderColor: '#1e40af',
+        lineColor: '#334155',
+        secondaryColor: '#fef3c7',
+        tertiaryColor: '#f8fafc'
     }},
     flowchart: {{
         htmlLabels: true,
         curve: 'basis'
     }}
+}});
+
+window.addEventListener('load', async () => {{
+    if (document.fonts) {{
+        await document.fonts.ready;
+    }}
+    setTimeout(() => {{
+        const svg = document.querySelector('.mermaid svg');
+        if (svg) {{
+            const vb = svg.viewBox.baseVal;
+            if (vb && vb.width > 0) {{
+                svg.style.width = vb.width + 'px';
+                svg.style.height = vb.height + 'px';
+                svg.style.maxWidth = 'none';
+            }}
+        }}
+    }}, 400);
 }});
 </script>
 </head>
@@ -305,43 +346,54 @@ mermaid.initialize({{
 </html>
 """
         temp_html_path.write_text(html_content, encoding="utf-8")
-        
-        # Screenshot with Edge/Chrome
         html_url = temp_html_path.resolve().as_uri()
-        screenshot_target = str(primary_path.resolve())
-        
-        cmd = [
+
+        # Step 1: Extract SVG vector using --dump-dom
+        dom_proc = subprocess.run(
+            [browser, "--headless=new", "--disable-gpu", "--virtual-time-budget=5000", "--dump-dom", html_url],
+            capture_output=True,
+            text=True,
+            encoding="utf-8"
+        )
+        match = re.search(r'(<svg[^>]*class=["\']mermaid["\'][^>]*>.*?</svg>|<svg[^>]*id=["\']mermaid-[^>]*>.*?</svg>|<svg[^>]*>.*?</svg>)', dom_proc.stdout, re.DOTALL)
+        if match:
+            svg_content = match.group(1)
+            svg_path.write_text(svg_content, encoding="utf-8")
+            print(f"  [OK] Saved vector SVG: {target_svg} ({len(svg_content)} bytes)")
+        else:
+            print(f"  [WARN] Could not extract raw SVG for {key}")
+
+        # Step 2: Render 3X Retina Screenshot
+        cmd_png = [
             browser,
             "--headless=new",
             "--disable-gpu",
-            "--force-device-scale-factor=2",
+            "--force-device-scale-factor=3",
             "--virtual-time-budget=6000",
-            "--window-size=2400,1800",
-            f"--screenshot={screenshot_target}",
+            "--window-size=4500,2500",
+            f"--screenshot={str(primary_png.resolve())}",
             html_url
         ]
+        subprocess.run(cmd_png, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
-        proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        
-        # Verify file existence
-        if primary_path.exists() and primary_path.stat().st_size > 2000:
-            crop_diagram(str(primary_path), pad=30)
-            file_size = primary_path.stat().st_size
-            print(f"  [OK] Rendered and cropped {primary_target} ({file_size} bytes)")
+        # Step 3: Crop and duplicate to aliases
+        if primary_png.exists() and primary_png.stat().st_size > 5000:
+            final_size = crop_diagram(str(primary_png), pad=35)
+            file_size = primary_png.stat().st_size
+            print(f"  [OK] Rendered 3x Retina PNG: {primary_png.name} (dimensions={final_size}, {file_size} bytes)")
             
-            # Copy to alias targets if any
-            for alias in targets[1:]:
+            for alias in targets_png[1:]:
                 alias_path = out_dir / alias
-                alias_path.write_bytes(primary_path.read_bytes())
-                print(f"  [OK] Saved alias {alias}")
+                alias_path.write_bytes(primary_png.read_bytes())
+                print(f"  [OK] Saved alias: {alias}")
         else:
-            print(f"  [FAIL] Failed to generate {primary_target}")
+            print(f"  [FAIL] Failed to generate {primary_png.name}")
             
         # Clean up temporary HTML
         if temp_html_path.exists():
             temp_html_path.unlink()
 
-    print("\n[✓] All diagrams successfully exported locally with native Persian fonts!")
+    print("\n[✓] All 4 Ultra-HD process diagrams rendered at 3x Retina resolution!")
 
 if __name__ == "__main__":
-    export_diagrams_locally()
+    export_all_diagrams()
