@@ -6,13 +6,17 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-# Persian Admin Panel Configuration
+# تنظیمات فارسی پنل مدیریت جنگو
 admin.site.site_header = 'سامانه مدیریت اجاره خودرو'
 admin.site.site_title = 'پنل مدیریت اجاره خودرو'
 admin.site.index_title = 'مدیریت و کنترل ناوگان و قراردادها'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include('core.urls')),
+    path('accounts/', include('accounts.urls')),
+    path('fleet/', include('fleet.urls')),
+    path('rentals/', include('rentals.urls')),
 ]
 
 if settings.DEBUG:

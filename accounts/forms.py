@@ -44,7 +44,7 @@ class UserRegistrationForm(UserCreationForm):
         widget=forms.Select(attrs={'class': 'form-select'})
     )
 
-    class Meta(UserCreationForm.Meta):
+    class Meta:
         model = CustomUser
         fields = (
             'username',
@@ -54,18 +54,18 @@ class UserRegistrationForm(UserCreationForm):
             'phone_number',
             'national_code',
             'role',
-            'password_1',
-            'password_2',
         )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['username'].widget.attrs.update({'class': 'form-control', 'placeholder': 'نام کاربری انگلیسی', 'dir': 'ltr'})
         self.fields['username'].label = 'نام کاربری'
-        self.fields['password_1'].widget.attrs.update({'class': 'form-control', 'placeholder': 'رمز عبور امن', 'dir': 'ltr'})
-        self.fields['password_1'].label = 'رمز عبور'
-        self.fields['password_2'].widget.attrs.update({'class': 'form-control', 'placeholder': 'تکرار رمز عبور', 'dir': 'ltr'})
-        self.fields['password_2'].label = 'تکرار رمز عبور'
+        if 'password_1' in self.fields:
+            self.fields['password_1'].widget.attrs.update({'class': 'form-control', 'placeholder': 'رمز عبور امن', 'dir': 'ltr'})
+            self.fields['password_1'].label = 'رمز عبور'
+        if 'password_2' in self.fields:
+            self.fields['password_2'].widget.attrs.update({'class': 'form-control', 'placeholder': 'تکرار رمز عبور', 'dir': 'ltr'})
+            self.fields['password_2'].label = 'تکرار رمز عبور'
 
     def clean_phone_number(self):
         phone = self.cleaned_data.get('phone_number')
