@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ car.brand.name }} {{ car.model_name }}{% endblock %}
+
+{% block extra_css %}
+<!-- Leaflet CSS for Map -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #pickup-map {
+        height: 280px;
+        width: 100%;
+        border-radius: 12px;
+        z-index: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">صفحه اصلی</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'fleet:car_list' %}">ناوگان خودروها</a></li>
+            <li class="breadcrumb-item active">{{ car.brand.name }} {{ car.model_name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Main Car Presentation -->
+        <div class="col-lg-8">
+            <div class="card card-custom overflow-hidden mb-4">
+                <div class="position-relative" style="height: 380px; background-color: #f1f5f9;">
+                    {% if car.image %}
+                        <img src="{{ car.image.url }}" class="w-100 h-100 object-fit-cover" alt="{{ car.model_name }}">
+                    {% else %}
+                        <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                            <i class="bi bi-car-front fs-1"></i>
+                        </div>
+                    {% endif %}
+                    <span class="badge position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill fw-bold shadow-sm badge-status-{{ car.status|lower }} fs-6">
+                        {{ car.get_status_display }}
+                    </span>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                        <div>
+                            <h2 class="fw-bold mb-1">{{ car.brand.name }} {{ car.model_name }}</h2>
+                            <span class="text-muted">برند: {{ car.brand.name }} | سال تولید: {{ car.year }}</span>
+                        </div>
+                        <div class="text-start mt-2 mt-md-0">
+                            <span class="text-muted small d-block">نرخ اجاره ۲۴ ساعته:</span>
+                            <span class="fw-bold text-primary fs-3">{{ car.daily_price }}</span>
+                            <span class="text-muted small">تومان</span>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Technical Specifications Grid -->
+                    <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-speedometer2 text-primary"></i> مشخصات و ویژگی‌های فنی
+                    </h5>
+                    <div class="row g-3 mb-4 text-center">
+                        <div class="col-sm-3 col-6">
+                            <div class="p-3 border rounded-3 bg-light">
+                                <i class="bi bi-people-fill text-primary fs-3 mb-1 d-block"></i>
+                                <span class="text-muted small d-block">ظرفیت</span>
+                                <strong class="fs-6">{{ car.capacity }} نفر</strong>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 col-6">
+                            <div class="p-3 border rounded-3 bg-light">
+                                <i class="bi bi-calendar3 text-success fs-3 mb-1 d-block"></i>
+                                <span class="text-muted small d-block">سال ساخت</span>
+                                <strong class="fs-6">{{ car.year }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 col-6">
+                            <div class="p-3 border rounded-3 bg-light">
+                                <i class="bi bi-shield-check text-warning fs-3 mb-1 d-block"></i>
+                                <span class="text-muted small d-block">وضعیت بیمه</span>
+                                <strong class="fs-6">بیمه کامل بدنه</strong>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 col-6">
+                            <div class="p-3 border rounded-3 bg-light">
+                                <i class="bi bi-check-circle-fill text-info fs-3 mb-1 d-block"></i>
+                                <span class="text-muted small d-block">سلامت فنی</span>
+                                <strong class="fs-6">تأیید کارشناس</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Features & Options -->
+                    <h5 class="fw-bold mb-2 d-flex align-items-center gap-2">
+                        <i class="bi bi-stars text-primary"></i> امکانات و آپشن‌های رفاهی
+                    </h5>
+                    <p class="text-secondary leading-relaxed mb-4">
+                        {{ car.features|linebreaks|default:"تمامی خودروها قبل از تحویل به صورت کامل کارواش و ضدعفونی شده و دارای بیمه شخص ثالث و بدنه با سقف تعهدات بالا می‌باشند." }}
+                    </p>
+
+                    <!-- Pickup Location & Map -->
+                    <h5 class="fw-bold mb-2 d-flex align-items-center gap-2">
+                        <i class="bi bi-geo-alt-fill text-danger"></i> موقعیت و آدرس محل تحویل خودرو
+                    </h5>
+                    <p class="text-muted mb-2">
+                        <i class="bi bi-pin-map-fill text-primary me-1"></i> {{ car.pickup_address }}
+                    </p>
+                    <div id="pickup-map" class="shadow-sm border mb-2"></div>
+                    <small class="text-muted">مختصات جغرافیایی: ({{ car.latitude }}, {{ car.longitude }})</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Booking Action -->
+        <div class="col-lg-4">
+            <div class="card card-custom p-4 sticky-top" style="top: 80px;">
+                <h4 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-calendar-check text-primary"></i> فرم رزرو و عقد قرارداد
+                </h4>
+                
+                <div class="p-3 bg-light rounded-3 mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">نرخ پایه روزانه:</span>
+                        <span class="fw-bold">{{ car.daily_price }} تومان</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted small">وضعیت ناوگان:</span>
+                        <span class="badge badge-status-{{ car.status|lower }}">{{ car.get_status_display }}</span>
+                    </div>
+                </div>
+
+                {% if car.status == 'AVAILABLE' %}
+                    {% if user.is_authenticated %}
+                        <form method="post" action="{% url 'rentals:create_request' car.pk %}">
+                            {% csrf_token %}
+                            
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">{{ rental_form.start_date.label }} <span class="text-danger">*</span></label>
+                                {{ rental_form.start_date }}
+                                {% if rental_form.start_date.errors %}
+                                    <div class="text-danger small mt-1">{{ rental_form.start_date.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">{{ rental_form.end_date.label }} <span class="text-danger">*</span></label>
+                                {{ rental_form.end_date }}
+                                {% if rental_form.end_date.errors %}
+                                    <div class="text-danger small mt-1">{{ rental_form.end_date.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="alert alert-info small py-2">
+                                <i class="bi bi-info-circle me-1"></i> مبلغ نهایی قرارداد پس از تعیین تاریخ شروع و پایان به طور خودکار محاسبه و برای تأیید مدیر ارسال خواهد شد.
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+                                <i class="bi bi-send-check me-1"></i> ثبت درخواست رزرواسیون
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <p class="text-muted small mb-3">برای ثبت درخواست رزرو این خودرو، ابتدا باید وارد حساب خود شوید.</p>
+                            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-primary w-100 fw-bold mb-2">
+                                <i class="bi bi-box-arrow-in-left me-1"></i> ورود به سامانه
+                            </a>
+                            <a href="{% url 'accounts:register' %}" class="btn btn-outline-secondary w-100 btn-sm">
+                                ایجاد حساب کاربری جدید
+                            </a>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-warning text-center small mb-0">
+                        <i class="bi bi-exclamation-triangle-fill fs-3 d-block mb-2"></i>
+                        این خودرو در حال حاضر در وضعیت «{{ car.get_status_display }}» قرار دارد و امکان ثبت درخواست جدید برای آن وجود ندارد.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Leaflet JS for Map rendering -->
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var lat = {{ car.latitude|default:35.6892 }};
+        var lng = {{ car.longitude|default:51.3890 }};
+        
+        var map = L.map('pickup-map').setView([lat, lng], 14);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        var marker = L.marker([lat, lng]).addTo(map);
+        marker.bindPopup("<b>محل تحویل {{ car.model_name }}</b><br>{{ car.pickup_address }}").openPopup();
+    });
+</script>
+{% endblock %}

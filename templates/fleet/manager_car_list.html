@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}مدیریت ناوگان خودروها{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom">
+        <div>
+            <h2 class="fw-bold mb-1">مدیریت ناوگان خودروها</h2>
+            <p class="text-muted mb-0">مشاهده وضعیت، ویرایش مشخصات و تغییر سریع وضعیت عملیاتی خودروها</p>
+        </div>
+        <div class="d-flex gap-2 mt-3 mt-md-0">
+            <a href="{% url 'fleet:brand_create' %}" class="btn btn-outline-primary">
+                <i class="bi bi-tag me-1"></i> افزودن برند
+            </a>
+            <a href="{% url 'fleet:car_create' %}" class="btn btn-success fw-bold">
+                <i class="bi bi-plus-circle me-1"></i> افزودن خودرو جدید
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats KPI -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="card card-custom p-3 border-start border-4 border-primary">
+                <span class="text-muted small">کل ناوگان</span>
+                <h4 class="fw-bold mb-0 text-primary">{{ stats.total }}</h4>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card card-custom p-3 border-start border-4 border-success">
+                <span class="text-muted small">قابل اجاره</span>
+                <h4 class="fw-bold mb-0 text-success">{{ stats.available }}</h4>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card card-custom p-3 border-start border-4 border-warning">
+                <span class="text-muted small">در دست تعمیر / چک</span>
+                <h4 class="fw-bold mb-0 text-warning">{{ stats.maintenance }}</h4>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card card-custom p-3 border-start border-4 border-danger">
+                <span class="text-muted small">در حال حاضر اجاره شده</span>
+                <h4 class="fw-bold mb-0 text-danger">{{ stats.rented }}</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table of Cars -->
+    <div class="card card-custom p-3">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>تصویر</th>
+                        <th>خودرو و برند</th>
+                        <th>سال ساخت</th>
+                        <th>کرایه روزانه</th>
+                        <th>ظرفیت</th>
+                        <th>وضعیت فعلی</th>
+                        <th>تغییر سریع وضعیت</th>
+                        <th class="text-center">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for car in cars %}
+                        <tr>
+                            <td style="width: 80px;">
+                                {% if car.image %}
+                                    <img src="{{ car.image.url }}" class="rounded object-fit-cover" width="60" height="40" alt="{{ car.model_name }}">
+                                {% else %}
+                                    <div class="bg-light rounded text-center text-muted" style="width: 60px; height: 40px; line-height: 40px;">
+                                        <i class="bi bi-car-front"></i>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong class="d-block">{{ car.brand.name }} {{ car.model_name }}</strong>
+                                <small class="text-muted">{{ car.pickup_address|truncatechars:25 }}</small>
+                            </td>
+                            <td>{{ car.year }}</td>
+                            <td class="fw-bold text-primary">{{ car.daily_price }} تومان</td>
+                            <td>{{ car.capacity }} نفر</td>
+                            <td>
+                                <span class="badge badge-status-{{ car.status|lower }} px-2 py-1 rounded-pill">
+                                    {{ car.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <form method="post" action="{% url 'fleet:car_status_change' car.pk %}" class="d-inline-flex gap-1">
+                                    {% csrf_token %}
+                                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                        <option value="AVAILABLE" {% if car.status == 'AVAILABLE' %}selected{% endif %}>قابل اجاره</option>
+                                        <option value="MAINTENANCE" {% if car.status == 'MAINTENANCE' %}selected{% endif %}>در دست تعمیر</option>
+                                        <option value="RENTED" {% if car.status == 'RENTED' %}selected{% endif %}>اجاره شده</option>
+                                    </select>
+                                </form>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'fleet:car_detail' car.pk %}" class="btn btn-outline-secondary" title="مشاهده صفحه">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'fleet:car_update' car.pk %}" class="btn btn-outline-primary" title="ویرایش">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">خودرویی در ناوگان ثبت نشده است.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

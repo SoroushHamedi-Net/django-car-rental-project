@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}مدیریت قراردادها و درخواست‌ها{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom">
+        <div>
+            <h2 class="fw-bold mb-1">مدیریت کلیه قراردادهای اجاره</h2>
+            <p class="text-muted mb-0">بررسی درخواست‌های مشتریان، تصمیم‌گیری جهت تأیید یا رد، و مدیریت جریان رزرواسیون</p>
+        </div>
+        <div class="mt-3 mt-md-0">
+            <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill">
+                {{ stats.total }} قرارداد ثبت شده
+            </span>
+        </div>
+    </div>
+
+    <!-- Filter Tabs / Pills -->
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <a href="{% url 'rentals:manager_contracts_list' %}" class="btn btn-sm {% if current_filter == 'ALL' %}btn-dark{% else %}btn-outline-dark{% endif %}">
+            همه ({{ stats.total }})
+        </a>
+        <a href="{% url 'rentals:manager_contracts_list' %}?status=PENDING" class="btn btn-sm {% if current_filter == 'PENDING' %}btn-warning text-dark{% else %}btn-outline-warning text-dark{% endif %}">
+            در انتظار بررسی ({{ stats.pending }})
+        </a>
+        <a href="{% url 'rentals:manager_contracts_list' %}?status=APPROVED" class="btn btn-sm {% if current_filter == 'APPROVED' %}btn-success{% else %}btn-outline-success{% endif %}">
+            تأیید شده / فعال ({{ stats.approved }})
+        </a>
+        <a href="{% url 'rentals:manager_contracts_list' %}?status=REJECTED" class="btn btn-sm {% if current_filter == 'REJECTED' %}btn-danger{% else %}btn-outline-danger{% endif %}">
+            رد شده ({{ stats.rejected }})
+        </a>
+        <a href="{% url 'rentals:manager_contracts_list' %}?status=CANCELLED" class="btn btn-sm {% if current_filter == 'CANCELLED' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
+            لغو شده توسط مشتری ({{ stats.cancelled }})
+        </a>
+        <a href="{% url 'rentals:manager_contracts_list' %}?status=COMPLETED" class="btn btn-sm {% if current_filter == 'COMPLETED' %}btn-info text-white{% else %}btn-outline-info{% endif %}">
+            پایان یافته ({{ stats.completed }})
+        </a>
+    </div>
+
+    <!-- Table of Contracts -->
+    <div class="card card-custom p-3">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>کد قرارداد</th>
+                        <th>مشتری</th>
+                        <th>خودرو</th>
+                        <th>بازه تاریخی</th>
+                        <th>مدت و مبلغ کل</th>
+                        <th>وضعیت</th>
+                        <th>بررسی‌کننده</th>
+                        <th class="text-center">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contract in contracts %}
+                        <tr>
+                            <td>
+                                <strong>{{ contract.contract_code }}</strong>
+                                <small class="text-muted d-block">{{ contract.created_at|date:"Y/m/d H:i" }}</small>
+                            </td>
+                            <td>
+                                <strong>{{ contract.customer.get_full_name|default:contract.customer.username }}</strong>
+                                <div class="small text-muted" dir="ltr">{{ contract.customer.phone_number }}</div>
+                            </td>
+                            <td>
+                                <strong>{{ contract.car.brand.name }} {{ contract.car.model_name }}</strong>
+                                <small class="text-muted d-block">نرخ روز: {{ contract.daily_rate_snapshot }} تومان</small>
+                            </td>
+                            <td>
+                                <div>{{ contract.start_date }}</div>
+                                <small class="text-muted">تا {{ contract.end_date }}</small>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-primary">{{ contract.total_price }} تومان</div>
+                                <small class="text-muted">{{ contract.total_days }} روز</small>
+                            </td>
+                            <td>
+                                <span class="badge badge-contract-{{ contract.status|lower }} px-2 py-1 rounded-pill">
+                                    {{ contract.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if contract.reviewed_by %}
+                                    <small class="text-muted">{{ contract.reviewed_by.username }}</small>
+                                {% else %}
+                                    <small class="text-muted">بررسی نشده</small>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'rentals:manager_contract_review' contract.pk %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-pencil-square me-1"></i> بررسی / تصمیم
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">قراردادی با این وضعیت یافت نشد.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

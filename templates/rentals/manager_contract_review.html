@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}بررسی قرارداد {{ contract.contract_code }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'rentals:manager_contracts_list' %}">مدیریت قراردادها</a></li>
+            <li class="breadcrumb-item active">بررسی قرارداد {{ contract.contract_code }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Contract & Customer Info -->
+        <div class="col-lg-7">
+            <div class="card card-custom p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <h4 class="fw-bold mb-0">اطلاعات قرارداد {{ contract.contract_code }}</h4>
+                    <span class="badge badge-contract-{{ contract.status|lower }} px-3 py-2 fs-6 rounded-pill">
+                        {{ contract.get_status_display }}
+                    </span>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <h6 class="fw-bold mb-2 text-primary"><i class="bi bi-person-fill me-1"></i> اطلاعات متقاضی (مشتری)</h6>
+                            <div class="small mb-1"><strong>نام:</strong> {{ contract.customer.get_full_name|default:contract.customer.username }}</div>
+                            <div class="small mb-1"><strong>شماره همراه:</strong> <span dir="ltr">{{ contract.customer.phone_number }}</span></div>
+                            <div class="small mb-1"><strong>ایمیل:</strong> <span dir="ltr">{{ contract.customer.email|default:"ثبت نشده" }}</span></div>
+                            <div class="small"><strong>کد ملی:</strong> {{ contract.customer.national_code|default:"ثبت نشده" }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <h6 class="fw-bold mb-2 text-primary"><i class="bi bi-car-front-fill me-1"></i> مشخصات خودرو</h6>
+                            <div class="small mb-1"><strong>خودرو:</strong> {{ contract.car.brand.name }} {{ contract.car.model_name }}</div>
+                            <div class="small mb-1"><strong>سال ساخت:</strong> {{ contract.car.year }}</div>
+                            <div class="small mb-1"><strong>وضعیت فعلی خودرو:</strong> {{ contract.car.get_status_display }}</div>
+                            <div class="small"><strong>محل تحویل:</strong> {{ contract.car.pickup_address }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h6 class="fw-bold mb-2 text-primary"><i class="bi bi-calendar-range me-1"></i> جزئیات زمانی و مالی قرارداد</h6>
+                <div class="table-responsive">
+                    <table class="table table-bordered small mb-0">
+                        <tbody>
+                            <tr>
+                                <th class="table-light" style="width: 35%;">تاریخ تحویل (شروع):</th>
+                                <td>{{ contract.start_date }}</td>
+                            </tr>
+                            <tr>
+                                <th class="table-light">تاریخ عودت (پایان):</th>
+                                <td>{{ contract.end_date }}</td>
+                            </tr>
+                            <tr>
+                                <th class="table-light">مدت زمان اجاره:</th>
+                                <td>{{ contract.total_days }} روز</td>
+                            </tr>
+                            <tr>
+                                <th class="table-light">نرخ روزانه در زمان عقد:</th>
+                                <td>{{ contract.daily_rate_snapshot }} تومان</td>
+                            </tr>
+                            <tr>
+                                <th class="table-light text-primary">مبلغ کل قرارداد:</th>
+                                <td class="fw-bold text-primary fs-5">{{ contract.total_price }} تومان</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manager Decision Form -->
+        <div class="col-lg-5">
+            <div class="card card-custom p-4 sticky-top" style="top: 80px;">
+                <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-check-circle-fill text-success"></i> ثبت تصمیم مدیر
+                </h5>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">{{ form.status.label }} <span class="text-danger">*</span></label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                            <div class="text-danger small mt-1">{{ form.status.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">{{ form.manager_note.label }}</label>
+                        {{ form.manager_note }}
+                        {% if form.manager_note.errors %}
+                            <div class="text-danger small mt-1">{{ form.manager_note.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="alert alert-info small py-2 mb-3">
+                        <i class="bi bi-shield-lock me-1"></i> در صورت «تأیید درخواست»، وضعیت خودرو به طور خودکار به اجاره شده تغییر خواهد کرد.
+                    </div>
+
+                    <div class="d-flex justify-content-between pt-2">
+                        <a href="{% url 'rentals:manager_contracts_list' %}" class="btn btn-outline-secondary">بازگشت</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-bold">
+                            <i class="bi bi-save me-1"></i> ثبت نهایی تصمیم
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

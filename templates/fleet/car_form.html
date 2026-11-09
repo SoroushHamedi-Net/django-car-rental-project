@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<!-- Leaflet CSS for coordinate picker -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #map-picker {
+        height: 250px;
+        border-radius: 10px;
+        z-index: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'fleet:manager_car_list' %}">مدیریت ناوگان</a></li>
+            <li class="breadcrumb-item active">{{ title }}</li>
+        </ol>
+    </nav>
+
+    <div class="card card-custom p-4 p-md-5 mx-auto" style="max-width: 900px;">
+        <h3 class="fw-bold mb-4 d-flex align-items-center gap-2">
+            <i class="bi bi-car-front-fill text-primary"></i> {{ title }}
+        </h3>
+
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold">{{ form.brand.label }} <span class="text-danger">*</span></label>
+                    {{ form.brand }}
+                    {% if form.brand.errors %}<div class="text-danger small mt-1">{{ form.brand.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold">{{ form.model_name.label }} <span class="text-danger">*</span></label>
+                    {{ form.model_name }}
+                    {% if form.model_name.errors %}<div class="text-danger small mt-1">{{ form.model_name.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">{{ form.year.label }} <span class="text-danger">*</span></label>
+                    {{ form.year }}
+                    {% if form.year.errors %}<div class="text-danger small mt-1">{{ form.year.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">{{ form.daily_price.label }} <span class="text-danger">*</span></label>
+                    {{ form.daily_price }}
+                    {% if form.daily_price.errors %}<div class="text-danger small mt-1">{{ form.daily_price.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">{{ form.capacity.label }} <span class="text-danger">*</span></label>
+                    {{ form.capacity }}
+                    {% if form.capacity.errors %}<div class="text-danger small mt-1">{{ form.capacity.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label small fw-bold">{{ form.status.label }} <span class="text-danger">*</span></label>
+                    {{ form.status }}
+                    {% if form.status.errors %}<div class="text-danger small mt-1">{{ form.status.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label small fw-bold">{{ form.features.label }}</label>
+                    {{ form.features }}
+                    {% if form.features.errors %}<div class="text-danger small mt-1">{{ form.features.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label small fw-bold">{{ form.pickup_address.label }} <span class="text-danger">*</span></label>
+                    {{ form.pickup_address }}
+                    {% if form.pickup_address.errors %}<div class="text-danger small mt-1">{{ form.pickup_address.errors.0 }}</div>{% endif %}
+                </div>
+
+                <!-- Coordinates Picker -->
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold">{{ form.latitude.label }}</label>
+                    {{ form.latitude }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold">{{ form.longitude.label }}</label>
+                    {{ form.longitude }}
+                </div>
+
+                <div class="col-12">
+                    <div class="card p-2 bg-light border">
+                        <small class="text-muted mb-2 d-block">
+                            <i class="bi bi-info-circle me-1"></i> با کلیک بر روی نقشه می‌توانید مختصات تحویل خودرو را مشخص کنید:
+                        </small>
+                        <div id="map-picker"></div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label small fw-bold">{{ form.image.label }}</label>
+                    {{ form.image }}
+                    {% if car and car.image %}
+                        <div class="mt-2">
+                            <small class="text-muted d-block">تصویر فعلی:</small>
+                            <img src="{{ car.image.url }}" alt="car image" class="rounded mt-1" width="120">
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                <a href="{% url 'fleet:manager_car_list' %}" class="btn btn-outline-secondary">انصراف</a>
+                <button type="submit" class="btn btn-primary px-4 fw-bold">
+                    <i class="bi bi-check2-circle me-1"></i> ذخیره اطلاعات خودرو
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var latInput = document.getElementById('id_latitude');
+        var lngInput = document.getElementById('id_longitude');
+
+        var initialLat = parseFloat(latInput.value) || 35.6892;
+        var initialLng = parseFloat(lngInput.value) || 51.3890;
+
+        var map = L.map('map-picker').setView([initialLat, initialLng], 12);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        var marker = L.marker([initialLat, initialLng], {draggable: true}).addTo(map);
+
+        function updateInputs(pos) {
+            latInput.value = pos.lat.toFixed(4);
+            lngInput.value = pos.lng.toFixed(4);
+        }
+
+        map.on('click', function(e) {
+            marker.setLatLng(e.latlng);
+            updateInputs(e.latlng);
+        });
+
+        marker.on('dragend', function(e) {
+            updateInputs(marker.getLatLng());
+        });
+    });
+</script>
+{% endblock %}

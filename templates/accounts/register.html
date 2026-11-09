@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}ثبت‌نام در سامانه{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+            <div class="card card-custom p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="bg-primary-subtle text-primary p-3 rounded-circle d-inline-block mb-3">
+                        <i class="bi bi-person-plus-fill fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold">ایجاد حساب کاربری</h3>
+                    <p class="text-muted small">برای دسترسی به خدمات رزرواسیون خودرو، لطفاً فرم زیر را تکمیل نمایید.</p>
+                </div>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">{{ form.first_name.label }} <span class="text-danger">*</span></label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}<div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">{{ form.last_name.label }} <span class="text-danger">*</span></label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}<div class="text-danger small mt-1">{{ form.last_name.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">{{ form.username.label }} <span class="text-danger">*</span></label>
+                            {{ form.username }}
+                            {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">{{ form.email.label }} <span class="text-danger">*</span></label>
+                            {{ form.email }}
+                            {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">{{ form.phone_number.label }} <span class="text-danger">*</span></label>
+                            {{ form.phone_number }}
+                            {% if form.phone_number.errors %}<div class="text-danger small mt-1">{{ form.phone_number.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">{{ form.national_code.label }}</label>
+                            {{ form.national_code }}
+                            {% if form.national_code.errors %}<div class="text-danger small mt-1">{{ form.national_code.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">{{ form.role.label }} <span class="text-danger">*</span></label>
+                            {{ form.role }}
+                            <div class="form-text small">انتخاب نقش «مشتری» جهت اجاره خودرو، یا «مدیر سامانه» جهت مدیریت ناوگان</div>
+                            {% if form.role.errors %}<div class="text-danger small mt-1">{{ form.role.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">{{ form.password_1.label }} <span class="text-danger">*</span></label>
+                            {{ form.password_1 }}
+                            {% if form.password_1.errors %}<div class="text-danger small mt-1">{{ form.password_1.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">{{ form.password_2.label }} <span class="text-danger">*</span></label>
+                            {{ form.password_2 }}
+                            {% if form.password_2.errors %}<div class="text-danger small mt-1">{{ form.password_2.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                            <i class="bi bi-check2-circle me-1"></i> تکمیل ثبت‌نام و ورود
+                        </button>
+                    </div>
+
+                    <div class="text-center mt-3 small text-muted">
+                        قبلاً ثبت‌نام کرده‌اید؟ <a href="{% url 'accounts:login' %}" class="fw-bold text-primary">وارد حساب خود شوید</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
