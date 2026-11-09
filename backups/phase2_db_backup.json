@@ -1,0 +1,1093 @@
+[
+{
+  "model": "contenttypes.contenttype",
+  "fields": {
+    "app_label": "admin",
+    "model": "logentry"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "fields": {
+    "app_label": "auth",
+    "model": "permission"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "fields": {
+    "app_label": "auth",
+    "model": "group"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "fields": {
+    "app_label": "contenttypes",
+    "model": "contenttype"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "fields": {
+    "app_label": "sessions",
+    "model": "session"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "fields": {
+    "app_label": "accounts",
+    "model": "customuser"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "fields": {
+    "app_label": "accounts",
+    "model": "verificationtoken"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "fields": {
+    "app_label": "fleet",
+    "model": "carbrand"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "fields": {
+    "app_label": "fleet",
+    "model": "car"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "fields": {
+    "app_label": "rentals",
+    "model": "rentalcontract"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "fields": {
+    "app_label": "core",
+    "model": "notificationlog"
+  }
+},
+{
+  "model": "fleet.carbrand",
+  "pk": 1,
+  "fields": {
+    "name": "مرسدس بنز",
+    "country": "آلمان",
+    "logo": "",
+    "created_at": "2026-11-09T20:24:22.191Z"
+  }
+},
+{
+  "model": "fleet.carbrand",
+  "pk": 2,
+  "fields": {
+    "name": "تویوتا",
+    "country": "ژاپن",
+    "logo": "",
+    "created_at": "2026-11-09T20:24:22.193Z"
+  }
+},
+{
+  "model": "fleet.carbrand",
+  "pk": 3,
+  "fields": {
+    "name": "هیوندای",
+    "country": "کره جنوبی",
+    "logo": "",
+    "created_at": "2026-11-09T20:24:22.195Z"
+  }
+},
+{
+  "model": "fleet.carbrand",
+  "pk": 4,
+  "fields": {
+    "name": "کیا",
+    "country": "کره جنوبی",
+    "logo": "",
+    "created_at": "2026-11-09T20:24:22.196Z"
+  }
+},
+{
+  "model": "fleet.carbrand",
+  "pk": 5,
+  "fields": {
+    "name": "پژو",
+    "country": "فرانسه",
+    "logo": "",
+    "created_at": "2026-11-09T20:24:22.197Z"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can add log entry",
+    "content_type": [
+      "admin",
+      "logentry"
+    ],
+    "codename": "add_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can change log entry",
+    "content_type": [
+      "admin",
+      "logentry"
+    ],
+    "codename": "change_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can delete log entry",
+    "content_type": [
+      "admin",
+      "logentry"
+    ],
+    "codename": "delete_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can view log entry",
+    "content_type": [
+      "admin",
+      "logentry"
+    ],
+    "codename": "view_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can add permission",
+    "content_type": [
+      "auth",
+      "permission"
+    ],
+    "codename": "add_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can change permission",
+    "content_type": [
+      "auth",
+      "permission"
+    ],
+    "codename": "change_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can delete permission",
+    "content_type": [
+      "auth",
+      "permission"
+    ],
+    "codename": "delete_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can view permission",
+    "content_type": [
+      "auth",
+      "permission"
+    ],
+    "codename": "view_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can add group",
+    "content_type": [
+      "auth",
+      "group"
+    ],
+    "codename": "add_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can change group",
+    "content_type": [
+      "auth",
+      "group"
+    ],
+    "codename": "change_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can delete group",
+    "content_type": [
+      "auth",
+      "group"
+    ],
+    "codename": "delete_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can view group",
+    "content_type": [
+      "auth",
+      "group"
+    ],
+    "codename": "view_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can add content type",
+    "content_type": [
+      "contenttypes",
+      "contenttype"
+    ],
+    "codename": "add_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can change content type",
+    "content_type": [
+      "contenttypes",
+      "contenttype"
+    ],
+    "codename": "change_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can delete content type",
+    "content_type": [
+      "contenttypes",
+      "contenttype"
+    ],
+    "codename": "delete_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can view content type",
+    "content_type": [
+      "contenttypes",
+      "contenttype"
+    ],
+    "codename": "view_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can add session",
+    "content_type": [
+      "sessions",
+      "session"
+    ],
+    "codename": "add_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can change session",
+    "content_type": [
+      "sessions",
+      "session"
+    ],
+    "codename": "change_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can delete session",
+    "content_type": [
+      "sessions",
+      "session"
+    ],
+    "codename": "delete_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can view session",
+    "content_type": [
+      "sessions",
+      "session"
+    ],
+    "codename": "view_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can add کاربر",
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "codename": "add_customuser"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can change کاربر",
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "codename": "change_customuser"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can delete کاربر",
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "codename": "delete_customuser"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can view کاربر",
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "codename": "view_customuser"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can add توکن اعتبارسنجی",
+    "content_type": [
+      "accounts",
+      "verificationtoken"
+    ],
+    "codename": "add_verificationtoken"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can change توکن اعتبارسنجی",
+    "content_type": [
+      "accounts",
+      "verificationtoken"
+    ],
+    "codename": "change_verificationtoken"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can delete توکن اعتبارسنجی",
+    "content_type": [
+      "accounts",
+      "verificationtoken"
+    ],
+    "codename": "delete_verificationtoken"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can view توکن اعتبارسنجی",
+    "content_type": [
+      "accounts",
+      "verificationtoken"
+    ],
+    "codename": "view_verificationtoken"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can add برند خودرو",
+    "content_type": [
+      "fleet",
+      "carbrand"
+    ],
+    "codename": "add_carbrand"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can change برند خودرو",
+    "content_type": [
+      "fleet",
+      "carbrand"
+    ],
+    "codename": "change_carbrand"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can delete برند خودرو",
+    "content_type": [
+      "fleet",
+      "carbrand"
+    ],
+    "codename": "delete_carbrand"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can view برند خودرو",
+    "content_type": [
+      "fleet",
+      "carbrand"
+    ],
+    "codename": "view_carbrand"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can add خودرو",
+    "content_type": [
+      "fleet",
+      "car"
+    ],
+    "codename": "add_car"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can change خودرو",
+    "content_type": [
+      "fleet",
+      "car"
+    ],
+    "codename": "change_car"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can delete خودرو",
+    "content_type": [
+      "fleet",
+      "car"
+    ],
+    "codename": "delete_car"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can view خودرو",
+    "content_type": [
+      "fleet",
+      "car"
+    ],
+    "codename": "view_car"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can add قرارداد اجاره",
+    "content_type": [
+      "rentals",
+      "rentalcontract"
+    ],
+    "codename": "add_rentalcontract"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can change قرارداد اجاره",
+    "content_type": [
+      "rentals",
+      "rentalcontract"
+    ],
+    "codename": "change_rentalcontract"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can delete قرارداد اجاره",
+    "content_type": [
+      "rentals",
+      "rentalcontract"
+    ],
+    "codename": "delete_rentalcontract"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can view قرارداد اجاره",
+    "content_type": [
+      "rentals",
+      "rentalcontract"
+    ],
+    "codename": "view_rentalcontract"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can add گزارش اعلان",
+    "content_type": [
+      "core",
+      "notificationlog"
+    ],
+    "codename": "add_notificationlog"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can change گزارش اعلان",
+    "content_type": [
+      "core",
+      "notificationlog"
+    ],
+    "codename": "change_notificationlog"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can delete گزارش اعلان",
+    "content_type": [
+      "core",
+      "notificationlog"
+    ],
+    "codename": "delete_notificationlog"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can view گزارش اعلان",
+    "content_type": [
+      "core",
+      "notificationlog"
+    ],
+    "codename": "view_notificationlog"
+  }
+},
+{
+  "model": "accounts.customuser",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$9SYfgZBF3u0R6peMZ3fTBH$j6AeDct8yn4GEO8DrCQTdsDXxp9OxzT6pfWGSaAgEUE=",
+    "last_login": null,
+    "is_superuser": true,
+    "username": "manager1",
+    "first_name": "سروش",
+    "last_name": "حامدی",
+    "email": "soroush@carrental.ir",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-11-09T20:24:21.181Z",
+    "role": "MANAGER",
+    "phone_number": "09121111111",
+    "national_code": "0011223344",
+    "is_email_verified": true,
+    "is_phone_verified": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.customuser",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$9A4pwclqxVUeMC1CMUbOZw$S6bNKPgWDEL6EHTwNVxNtbW6horRlettzpd1pouF0OU=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "manager2",
+    "first_name": "نورا",
+    "last_name": "نوراسفرد",
+    "email": "noora@carrental.ir",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-11-09T20:24:21.386Z",
+    "role": "MANAGER",
+    "phone_number": "09122222222",
+    "national_code": "0022334455",
+    "is_email_verified": true,
+    "is_phone_verified": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.customuser",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$Pzd7nWOFrbreiuR18Vqx69$j6O6ws0aRvWmof0x1wFp2kH/mK66U919JFnj87asQ1c=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "customer1",
+    "first_name": "علی",
+    "last_name": "محمدی",
+    "email": "ali@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-11-09T20:24:21.548Z",
+    "role": "CUSTOMER",
+    "phone_number": "09123333333",
+    "national_code": "0033445566",
+    "is_email_verified": true,
+    "is_phone_verified": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.customuser",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$372CpY7DQymX2f6Jwgn6EW$Sz+L+luO7uIuBIAIbLEZpuZTiQa+beUqMBzJoh6FonE=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "customer2",
+    "first_name": "سارا",
+    "last_name": "کریمی",
+    "email": "sara@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-11-09T20:24:21.701Z",
+    "role": "CUSTOMER",
+    "phone_number": "09124444444",
+    "national_code": "0044556677",
+    "is_email_verified": true,
+    "is_phone_verified": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.customuser",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$eihA7EakQiCvap8toQMtEh$Veke/K7dQA6nMYT5P3IqN6VzPUwdIMLVzy15F8/PdS0=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "customer3",
+    "first_name": "رضا",
+    "last_name": "صادقی",
+    "email": "reza@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-11-09T20:24:21.854Z",
+    "role": "CUSTOMER",
+    "phone_number": "09125555555",
+    "national_code": "0055667788",
+    "is_email_verified": true,
+    "is_phone_verified": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.customuser",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$0GJZhxCfnEvn1TkSENAWfw$35TqmTlGOyllhzgK2DuJW20zr1lzzPG/AVr3IR08WpE=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "customer4",
+    "first_name": "مریم",
+    "last_name": "احمدی",
+    "email": "maryam@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-11-09T20:24:22.017Z",
+    "role": "CUSTOMER",
+    "phone_number": "09126666666",
+    "national_code": "0066778899",
+    "is_email_verified": true,
+    "is_phone_verified": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "fleet.car",
+  "pk": 1,
+  "fields": {
+    "brand": 1,
+    "model_name": "C200",
+    "year": 2020,
+    "daily_price": "9500000",
+    "capacity": 5,
+    "features": "کیت AMG، رادار نقطه کور، صندلی چرم طبیعی، سیستم صوتی برمستر، بیمه بدنه کامل",
+    "status": "AVAILABLE",
+    "pickup_address": "تهران، سعادت‌آباد، خیابان سرو غربی",
+    "latitude": 35.7765,
+    "longitude": 51.3688,
+    "image": "",
+    "created_by": [
+      "manager1"
+    ],
+    "created_at": "2026-11-09T20:24:22.202Z",
+    "updated_at": "2026-11-09T20:24:22.202Z"
+  }
+},
+{
+  "model": "fleet.car",
+  "pk": 2,
+  "fields": {
+    "brand": 1,
+    "model_name": "E250",
+    "year": 2021,
+    "daily_price": "14000000",
+    "capacity": 5,
+    "features": "سقف پانوراما، اتوپارک، دوربین ۳۶۰ درجه، کروز کنترل هوشمند، پکیج اختصاصی VIP",
+    "status": "RENTED",
+    "pickup_address": "تهران، نیاوران، سه راه یاسر",
+    "latitude": 35.8152,
+    "longitude": 51.4678,
+    "image": "",
+    "created_by": [
+      "manager1"
+    ],
+    "created_at": "2026-11-09T20:24:22.209Z",
+    "updated_at": "2026-11-09T20:24:22.209Z"
+  }
+},
+{
+  "model": "fleet.car",
+  "pk": 3,
+  "fields": {
+    "brand": 2,
+    "model_name": "Camry",
+    "year": 2018,
+    "daily_price": "4800000",
+    "capacity": 5,
+    "features": "هیبرید، مصرف سوخت فوق‌العاده کم، سواری نرم و راحت، سیستم صوتی JBL",
+    "status": "AVAILABLE",
+    "pickup_address": "تهران، میدان ونک، خیابان گاندی",
+    "latitude": 35.7575,
+    "longitude": 51.4116,
+    "image": "",
+    "created_by": [
+      "manager1"
+    ],
+    "created_at": "2026-11-09T20:24:22.211Z",
+    "updated_at": "2026-11-09T20:24:22.211Z"
+  }
+},
+{
+  "model": "fleet.car",
+  "pk": 4,
+  "fields": {
+    "brand": 2,
+    "model_name": "RAV4",
+    "year": 2019,
+    "daily_price": "6500000",
+    "capacity": 5,
+    "features": "دو دیفرانسیل AWD، گرمکن صندلی‌ها، سیستم کنترل کشش در سراشیبی، مانیتور لمسی بزرگ",
+    "status": "AVAILABLE",
+    "pickup_address": "تهران، شهرک غرب، بلوار دادمان",
+    "latitude": 35.7612,
+    "longitude": 51.3789,
+    "image": "",
+    "created_by": [
+      "manager1"
+    ],
+    "created_at": "2026-11-09T20:24:22.213Z",
+    "updated_at": "2026-11-09T20:24:22.213Z"
+  }
+},
+{
+  "model": "fleet.car",
+  "pk": 5,
+  "fields": {
+    "brand": 3,
+    "model_name": "Sonata LF",
+    "year": 2017,
+    "daily_price": "3900000",
+    "capacity": 5,
+    "features": "فول کامل، درایو مود، ترمز دستی برقی، اتوهلد، پرده عقب برقی",
+    "status": "AVAILABLE",
+    "pickup_address": "تهران، صادقیه، بلوار فردوس شرق",
+    "latitude": 35.7208,
+    "longitude": 51.3142,
+    "image": "",
+    "created_by": [
+      "manager1"
+    ],
+    "created_at": "2026-11-09T20:24:22.214Z",
+    "updated_at": "2026-11-09T20:24:22.214Z"
+  }
+},
+{
+  "model": "fleet.car",
+  "pk": 6,
+  "fields": {
+    "brand": 3,
+    "model_name": "Santa Fe",
+    "year": 2018,
+    "daily_price": "5800000",
+    "capacity": 7,
+    "features": "۷ نفره خانوادگی، دو دیفرانسیل، صندوق برقی، چک فنی دوره‌ای و سرویس لنت و تعویض روغن",
+    "status": "MAINTENANCE",
+    "pickup_address": "تهران، میدان آزادی، تعمیرگاه مرکزی سامانه",
+    "latitude": 35.6997,
+    "longitude": 51.3541,
+    "image": "",
+    "created_by": [
+      "manager1"
+    ],
+    "created_at": "2026-11-09T20:24:22.215Z",
+    "updated_at": "2026-11-09T20:24:22.215Z"
+  }
+},
+{
+  "model": "fleet.car",
+  "pk": 7,
+  "fields": {
+    "brand": 4,
+    "model_name": "Sportage",
+    "year": 2017,
+    "daily_price": "4500000",
+    "capacity": 5,
+    "features": "سقف شیشه‌ای پانوراما، تهویه دوگانه اتوماتیک، شیب‌سنج، رینگ ۱۸ اینچی اسپرت",
+    "status": "AVAILABLE",
+    "pickup_address": "تهران، میدان آرژانتین، خیابان وزرا",
+    "latitude": 35.739,
+    "longitude": 51.416,
+    "image": "",
+    "created_by": [
+      "manager1"
+    ],
+    "created_at": "2026-11-09T20:24:22.217Z",
+    "updated_at": "2026-11-09T20:24:22.217Z"
+  }
+},
+{
+  "model": "fleet.car",
+  "pk": 8,
+  "fields": {
+    "brand": 4,
+    "model_name": "Cerato",
+    "year": 2016,
+    "daily_price": "2600000",
+    "capacity": 5,
+    "features": "موتور ۲۰۰۰ سی‌سی، پدال شیفتر پشت فرمان، کی‌لس استارت، بیمه شخص ثالث و بدنه کامل",
+    "status": "RENTED",
+    "pickup_address": "تهران، پاسداران، گلستان پنجم",
+    "latitude": 35.7711,
+    "longitude": 51.4645,
+    "image": "",
+    "created_by": [
+      "manager1"
+    ],
+    "created_at": "2026-11-09T20:24:22.218Z",
+    "updated_at": "2026-11-09T20:24:22.218Z"
+  }
+},
+{
+  "model": "fleet.car",
+  "pk": 9,
+  "fields": {
+    "brand": 5,
+    "model_name": "206 SD",
+    "year": 1399,
+    "daily_price": "950000",
+    "capacity": 4,
+    "features": "صندوق‌دار V8، بسیار تمیز و کم‌مصرف، مناسب سفرهای شهری و اقتصادی، کولر و بخاری عالی",
+    "status": "AVAILABLE",
+    "pickup_address": "تهران، میدان هفت تیر، خیابان مفتح شمالی",
+    "latitude": 35.7225,
+    "longitude": 51.4284,
+    "image": "",
+    "created_by": [
+      "manager1"
+    ],
+    "created_at": "2026-11-09T20:24:22.220Z",
+    "updated_at": "2026-11-09T20:24:22.220Z"
+  }
+},
+{
+  "model": "fleet.car",
+  "pk": 10,
+  "fields": {
+    "brand": 5,
+    "model_name": "207i MC",
+    "year": 1401,
+    "daily_price": "1350000",
+    "capacity": 4,
+    "features": "سقف قرمز دو رنگ، مانیتور مالتی مدیا، کروز کنترل، فرمان برقی، رینگ آلومینیومی",
+    "status": "AVAILABLE",
+    "pickup_address": "تهران، پیروزی، خیابان نبرد شمالی",
+    "latitude": 35.6881,
+    "longitude": 51.4795,
+    "image": "",
+    "created_by": [
+      "manager1"
+    ],
+    "created_at": "2026-11-09T20:24:22.221Z",
+    "updated_at": "2026-11-09T20:24:22.221Z"
+  }
+},
+{
+  "model": "rentals.rentalcontract",
+  "pk": 1,
+  "fields": {
+    "contract_code": "CR-DEAC3DD7",
+    "customer": [
+      "customer1"
+    ],
+    "car": 2,
+    "start_date": "2026-11-07",
+    "end_date": "2026-11-12",
+    "daily_rate_snapshot": "14000000",
+    "total_price": "70000000",
+    "status": "APPROVED",
+    "manager_note": "قرارداد تایید و کلید و مدارک در نیاوران تحویل مشتری گردید.",
+    "reviewed_by": [
+      "manager1"
+    ],
+    "created_at": "2026-11-09T20:24:22.249Z",
+    "updated_at": "2026-11-09T20:24:22.249Z"
+  }
+},
+{
+  "model": "rentals.rentalcontract",
+  "pk": 2,
+  "fields": {
+    "contract_code": "CR-C4D35044",
+    "customer": [
+      "customer2"
+    ],
+    "car": 8,
+    "start_date": "2026-11-08",
+    "end_date": "2026-11-13",
+    "daily_rate_snapshot": "2600000",
+    "total_price": "13000000",
+    "status": "APPROVED",
+    "manager_note": "مدارک و ودیعه نقدی دریافت شد، خودرو در اجاره می‌باشد.",
+    "reviewed_by": [
+      "manager1"
+    ],
+    "created_at": "2026-11-09T20:24:22.252Z",
+    "updated_at": "2026-11-09T20:24:22.252Z"
+  }
+},
+{
+  "model": "rentals.rentalcontract",
+  "pk": 3,
+  "fields": {
+    "contract_code": "CR-BA5BB1F8",
+    "customer": [
+      "customer1"
+    ],
+    "car": 3,
+    "start_date": "2026-11-14",
+    "end_date": "2026-11-17",
+    "daily_rate_snapshot": "4800000",
+    "total_price": "14400000",
+    "status": "PENDING",
+    "manager_note": "",
+    "reviewed_by": null,
+    "created_at": "2026-11-09T20:24:22.254Z",
+    "updated_at": "2026-11-09T20:24:22.254Z"
+  }
+},
+{
+  "model": "rentals.rentalcontract",
+  "pk": 4,
+  "fields": {
+    "contract_code": "CR-D0C06049",
+    "customer": [
+      "customer3"
+    ],
+    "car": 5,
+    "start_date": "2026-11-11",
+    "end_date": "2026-11-15",
+    "daily_rate_snapshot": "3900000",
+    "total_price": "15600000",
+    "status": "PENDING",
+    "manager_note": "",
+    "reviewed_by": null,
+    "created_at": "2026-11-09T20:24:22.255Z",
+    "updated_at": "2026-11-09T20:24:22.255Z"
+  }
+},
+{
+  "model": "rentals.rentalcontract",
+  "pk": 5,
+  "fields": {
+    "contract_code": "CR-F8B44F6B",
+    "customer": [
+      "customer2"
+    ],
+    "car": 10,
+    "start_date": "2026-10-30",
+    "end_date": "2026-11-03",
+    "daily_rate_snapshot": "1350000",
+    "total_price": "5400000",
+    "status": "COMPLETED",
+    "manager_note": "خودرو بدون هیچ‌گونه خسارت تحویل گرفته و ودیعه مسترد شد.",
+    "reviewed_by": [
+      "manager1"
+    ],
+    "created_at": "2026-11-09T20:24:22.256Z",
+    "updated_at": "2026-11-09T20:24:22.256Z"
+  }
+},
+{
+  "model": "rentals.rentalcontract",
+  "pk": 6,
+  "fields": {
+    "contract_code": "CR-D8E48E77",
+    "customer": [
+      "customer4"
+    ],
+    "car": 1,
+    "start_date": "2026-11-04",
+    "end_date": "2026-11-06",
+    "daily_rate_snapshot": "9500000",
+    "total_price": "19000000",
+    "status": "REJECTED",
+    "manager_note": "عدم انطباق مدارک بارگذاری شده با هویت متقاضی.",
+    "reviewed_by": [
+      "manager1"
+    ],
+    "created_at": "2026-11-09T20:24:22.257Z",
+    "updated_at": "2026-11-09T20:24:22.257Z"
+  }
+}
+]
