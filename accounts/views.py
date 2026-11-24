@@ -80,7 +80,11 @@ def profile_view(request):
         form = ProfileUpdateForm(instance=request.user)
 
     # خلاصه آخرین رزروهای کاربر
-    recent_rentals = RentalContract.objects.filter(customer=request.user).order_by('-created_at')[:5]
+    recent_rentals = (
+        RentalContract.objects.for_customer(request.user)
+        .select_related('car', 'car__brand')
+        .order_by('-created_at')[:5]
+    )
 
     context = {
         'form': form,

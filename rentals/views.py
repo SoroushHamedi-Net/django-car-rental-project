@@ -48,12 +48,16 @@ def my_rentals_view(request):
     """
     نمای مشاهده تاریخچه و قراردادهای جاری مشتری.
     """
-    contracts = RentalContract.objects.filter(customer=request.user).select_related('car', 'car__brand').order_by('-created_at')
+    contracts = (
+        RentalContract.objects.for_customer(request.user)
+        .select_related('car', 'car__brand')
+        .order_by('-created_at')
+    )
 
     stats = {
         'total': contracts.count(),
-        'pending': contracts.filter(status='PENDING').count(),
-        'approved': contracts.filter(status='APPROVED').count(),
+        'pending': contracts.pending_requests().count(),
+        'approved': contracts.active_contracts().count(),
         'completed': contracts.filter(status='COMPLETED').count(),
     }
 
@@ -98,8 +102,8 @@ def manager_contracts_list_view(request):
 
     stats = {
         'total': RentalContract.objects.count(),
-        'pending': RentalContract.objects.filter(status='PENDING').count(),
-        'approved': RentalContract.objects.filter(status='APPROVED').count(),
+        'pending': RentalContract.objects.pending_requests().count(),
+        'approved': RentalContract.objects.active_contracts().count(),
         'rejected': RentalContract.objects.filter(status='REJECTED').count(),
         'cancelled': RentalContract.objects.filter(status='CANCELLED').count(),
         'completed': RentalContract.objects.filter(status='COMPLETED').count(),

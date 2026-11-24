@@ -8,12 +8,12 @@ def home_view(request):
     """
     نمای صفحه اصلی سامانه شامل بخش هیرو، جستجوی سریع، خودروهای منتخب و آمار کلیدی.
     """
-    featured_cars = Car.objects.filter(status='AVAILABLE').select_related('brand').order_by('-created_at')[:6]
+    featured_cars = Car.objects.available().select_related('brand').order_by('-created_at')[:6]
     brands = CarBrand.objects.all()[:8]
 
     # آمار کلیدی سامانه
     total_cars_count = Car.objects.count()
-    available_cars_count = Car.objects.filter(status='AVAILABLE').count()
+    available_cars_count = Car.objects.available().count()
     total_rentals_count = RentalContract.objects.count()
 
     search_form = CarSearchFilterForm()

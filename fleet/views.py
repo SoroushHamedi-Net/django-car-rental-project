@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Car, CarBrand
 from .forms import CarForm, CarStatusUpdateForm, CarSearchFilterForm, BrandForm
-from rentals.models import RentalContract
 from rentals.forms import RentalRequestForm
 
 
@@ -27,17 +26,12 @@ def car_list_view(request):
         if model_query:
             cars = cars.filter(model_name__icontains=model_query)
         if max_price:
-            cars = cars.filter(daily_price__lte=max_price)
+            cars = cars.by_price_range(max_price=max_price)
         if capacity:
             cars = cars.filter(capacity__gte=capacity)
         if start_date and end_date:
-            # حذف خودروهایی که در این بازه قرارداد معلق یا تایید شده دارند
-            overlapping_car_ids = RentalContract.objects.filter(
-                status__in=['PENDING', 'APPROVED'],
-                start_date__lte=end_date,
-                end_date__gte=start_date
-            ).values_list('car_id', flat=True)
-            cars = cars.exclude(id__in=overlapping_car_ids)
+            # حذف خودروهایی که در این بازه قرارداد معلق یا تایید شده دارند با استفاده از منیجر سفارشی
+            cars = cars.available_for_dates(start_date, end_date)
 
     context = {
         'cars': cars,
@@ -75,9 +69,9 @@ def manager_car_list_view(request):
     cars = Car.objects.select_related('brand').all()
     stats = {
         'total': cars.count(),
-        'available': cars.filter(status='AVAILABLE').count(),
-        'maintenance': cars.filter(status='MAINTENANCE').count(),
-        'rented': cars.filter(status='RENTED').count(),
+        'available': Car.objects.available().count(),
+        'maintenance': Car.objects.in_maintenance().count(),
+        'rented': Car.objects.rented().count(),
     }
 
     context = {
