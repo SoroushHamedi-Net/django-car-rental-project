@@ -20,8 +20,10 @@ class RentalRequestForm(forms.ModelForm):
         }
 
     def __init__(self, *args, car=None, **kwargs):
-        self.car = car
         super().__init__(*args, **kwargs)
+        self.car = car
+        if car:
+            self.instance.car = car
 
     def clean(self):
         cleaned_data = super().clean()

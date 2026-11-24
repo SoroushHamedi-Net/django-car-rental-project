@@ -112,20 +112,27 @@ class RentalContract(models.Model):
                 raise ValidationError({'end_date': 'تاریخ پایان اجاره باید بعد از تاریخ شروع باشد.'})
 
             # بررسی تداخل زمانی با سایر قراردادهای فعال یا تایید شده برای همین خودرو
-            overlapping_contracts = RentalContract.objects.filter(
-                car=self.car,
-                status__in=['PENDING', 'APPROVED'],
-                start_date__lte=self.end_date,
-                end_date__gte=self.start_date
-            )
+            car = None
+            try:
+                car = self.car
+            except (RentalContract.car.RelatedObjectDoesNotExist, AttributeError):
+                car = None
 
-            if self.pk:
-                overlapping_contracts = overlapping_contracts.exclude(pk=self.pk)
-
-            if overlapping_contracts.exists():
-                raise ValidationError(
-                    'این خودرو در بازه زمانی انتخابی قبلاً رزرو شده است یا در حال بررسی می‌باشد. لطفاً تاریخ‌های دیگری انتخاب کنید.'
+            if car:
+                overlapping_contracts = RentalContract.objects.filter(
+                    car=car,
+                    status__in=['PENDING', 'APPROVED'],
+                    start_date__lte=self.end_date,
+                    end_date__gte=self.start_date
                 )
+
+                if self.pk:
+                    overlapping_contracts = overlapping_contracts.exclude(pk=self.pk)
+
+                if overlapping_contracts.exists():
+                    raise ValidationError(
+                        'این خودرو در بازه زمانی انتخابی قبلاً رزرو شده است یا در حال بررسی می‌باشد. لطفاً تاریخ‌های دیگری انتخاب کنید.'
+                    )
 
     def save(self, *args, **kwargs):
         # تولید کد یکتای قرارداد در صورت عدم وجود
@@ -134,8 +141,14 @@ class RentalContract(models.Model):
             self.contract_code = f"CR-{short_id}"
 
         # محاسبه خودکار نرخ اسنپ‌شات و مبلغ کل بر اساس تعداد روزها
-        if self.car and not self.daily_rate_snapshot:
-            self.daily_rate_snapshot = self.car.daily_price
+        car = None
+        try:
+            car = self.car
+        except (RentalContract.car.RelatedObjectDoesNotExist, AttributeError):
+            car = None
+
+        if car and not self.daily_rate_snapshot:
+            self.daily_rate_snapshot = car.daily_price
 
         if self.start_date and self.end_date and self.daily_rate_snapshot:
             days = (self.end_date - self.start_date).days
