@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from fleet.models import Car
+from .managers import RentalContractManager
 
 
 class RentalContract(models.Model):
@@ -82,6 +83,8 @@ class RentalContract(models.Model):
         verbose_name='زمان آخرین تغییر'
     )
 
+    objects = RentalContractManager()
+
     class Meta:
         verbose_name = 'قرارداد اجاره'
         verbose_name_plural = 'قراردادهای اجاره'
@@ -119,15 +122,12 @@ class RentalContract(models.Model):
                 car = None
 
             if car:
-                overlapping_contracts = RentalContract.objects.filter(
+                overlapping_contracts = RentalContract.objects.overlapping(
                     car=car,
-                    status__in=['PENDING', 'APPROVED'],
-                    start_date__lte=self.end_date,
-                    end_date__gte=self.start_date
+                    start_date=self.start_date,
+                    end_date=self.end_date,
+                    exclude_pk=self.pk,
                 )
-
-                if self.pk:
-                    overlapping_contracts = overlapping_contracts.exclude(pk=self.pk)
 
                 if overlapping_contracts.exists():
                     raise ValidationError(

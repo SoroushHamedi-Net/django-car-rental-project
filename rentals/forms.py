@@ -40,14 +40,12 @@ class RentalRequestForm(forms.ModelForm):
 
             if self.car:
                 # بررسی هم‌پوشانی تاریخی با قراردادهای تأیید شده یا در حال بررسی دیگر
-                overlapping = RentalContract.objects.filter(
+                overlapping = RentalContract.objects.overlapping(
                     car=self.car,
-                    status__in=['PENDING', 'APPROVED'],
-                    start_date__lte=end_date,
-                    end_date__gte=start_date
+                    start_date=start_date,
+                    end_date=end_date,
+                    exclude_pk=self.instance.pk,
                 )
-                if self.instance.pk:
-                    overlapping = overlapping.exclude(pk=self.instance.pk)
 
                 if overlapping.exists():
                     raise forms.ValidationError(

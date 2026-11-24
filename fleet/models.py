@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from .managers import CarManager
 
 
 class CarBrand(models.Model):
@@ -116,6 +117,8 @@ class Car(models.Model):
         auto_now=True,
         verbose_name='تاریخ آخرین ویرایش'
     )
+
+    objects = CarManager()
 
     class Meta:
         verbose_name = 'خودرو'
