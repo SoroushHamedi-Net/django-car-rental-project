@@ -10,7 +10,15 @@
             <h2 class="fw-bold mb-1">ناوگان خودروهای سامانه</h2>
             <p class="text-muted mb-0">خودروی مورد نظر خود را بر اساس برند، بودجه و تاریخ دلخواه پیدا و رزرو کنید.</p>
         </div>
-        <div class="mt-3 mt-md-0">
+        <div class="mt-3 mt-md-0 d-flex align-items-center gap-3 flex-wrap">
+            <div class="btn-group btn-group-sm shadow-sm" role="group" aria-label="تغییر حالت نمایش">
+                <a href="?view=grid" class="btn {% if view_mode != 'list' %}btn-primary{% else %}btn-outline-primary{% endif %}" title="نمایش شبکه‌ای">
+                    <i class="bi bi-grid-3x3-gap-fill me-1"></i> شبکه‌ای
+                </a>
+                <a href="?view=list" class="btn {% if view_mode == 'list' %}btn-primary{% else %}btn-outline-primary{% endif %}" title="نمایش لیستی">
+                    <i class="bi bi-list-ul me-1"></i> لیستی
+                </a>
+            </div>
             <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2 rounded-pill">
                 {{ total_results }} خودرو یافت شد
             </span>
@@ -54,66 +62,116 @@
                         <button type="submit" class="btn btn-primary fw-bold">
                             <i class="bi bi-filter me-1"></i> اعمال فیلترها
                         </button>
-                        <a href="{% url 'fleet:car_list' %}" class="btn btn-outline-secondary btn-sm">
+                        <a href="{% url 'fleet:car_list' %}?clear_filters=1" class="btn btn-outline-secondary btn-sm">
                             پاک کردن فیلترها
                         </a>
                     </div>
+                    {% if has_active_filters %}
+                        <div class="alert alert-info small py-2 px-3 mt-3 mb-0">
+                            <i class="bi bi-bookmark-check me-1"></i> فیلترهای جستجوی شما در سشن ذخیره شده‌اند.
+                        </div>
+                    {% endif %}
                 </form>
             </div>
         </div>
 
-        <!-- Car Cards Grid -->
+        <!-- Car Cards Grid / List -->
         <div class="col-lg-9">
             <div class="row g-4">
                 {% for car in cars %}
-                    <div class="col-md-6">
-                        <div class="card card-custom h-100 overflow-hidden d-flex flex-column">
-                            <div class="position-relative" style="height: 220px; background-color: #f1f5f9;">
-                                {% if car.image %}
-                                    <img src="{{ car.image.url }}" class="w-100 h-100 object-fit-cover" alt="{{ car.model_name }}">
-                                {% else %}
-                                    <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
-                                        <i class="bi bi-car-front fs-1"></i>
+                    {% if view_mode == 'list' %}
+                        <div class="col-12">
+                            <div class="card card-custom overflow-hidden">
+                                <div class="row g-0 align-items-center">
+                                    <div class="col-md-4 position-relative" style="height: 210px; background-color: #f1f5f9;">
+                                        {% if car.image %}
+                                            <img src="{{ car.image.url }}" class="w-100 h-100 object-fit-cover" alt="{{ car.model_name }}">
+                                        {% else %}
+                                            <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                                                <i class="bi bi-car-front fs-1"></i>
+                                            </div>
+                                        {% endif %}
+                                        <span class="badge position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill fw-bold shadow-sm badge-status-{{ car.status|lower }}">
+                                            {{ car.get_status_display }}
+                                        </span>
                                     </div>
-                                {% endif %}
-                                <span class="badge position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill fw-bold shadow-sm badge-status-{{ car.status|lower }}">
-                                    {{ car.get_status_display }}
-                                </span>
-                            </div>
-
-                            <div class="card-body d-flex flex-column p-4 flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h5 class="fw-bold mb-0">{{ car.brand.name }} {{ car.model_name }}</h5>
-                                    <span class="badge bg-light text-dark border">{{ car.year }}</span>
-                                </div>
-
-                                <p class="text-muted small mb-3 flex-grow-1">
-                                    {{ car.features|truncatewords:14|default:"بیمه بدنه کامل، سلامت فنی تضمین‌شده و تحویل تمیز" }}
-                                </p>
-
-                                <div class="p-2 rounded bg-light mb-3 small">
-                                    <div class="d-flex justify-content-between mb-1">
-                                        <span class="text-muted"><i class="bi bi-people me-1"></i> ظرفیت:</span>
-                                        <span class="fw-bold">{{ car.capacity }} نفر</span>
+                                    <div class="col-md-8">
+                                        <div class="card-body p-4 d-flex flex-column h-100">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h5 class="fw-bold mb-0">{{ car.brand.name }} {{ car.model_name }}</h5>
+                                                <span class="badge bg-light text-dark border">{{ car.year }}</span>
+                                            </div>
+                                            <p class="text-muted small mb-3">
+                                                {{ car.features|truncatewords:20|default:"بیمه بدنه کامل، سلامت فنی تضمین‌شده و تحویل تمیز" }}
+                                            </p>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted mb-3">
+                                                <span><i class="bi bi-people me-1 text-primary"></i> ظرفیت: <strong>{{ car.capacity }} نفر</strong></span>
+                                                <span><i class="bi bi-geo-alt me-1 text-danger"></i> {{ car.pickup_address }}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                                                <div>
+                                                    <span class="text-muted small">کرایه هر ۲۴ ساعت:</span>
+                                                    <div class="fw-bold text-primary fs-5">{{ car.daily_price }} <span class="fs-6 small">تومان</span></div>
+                                                </div>
+                                                <a href="{% url 'fleet:car_detail' car.pk %}" class="btn btn-outline-primary fw-bold">
+                                                    مشخصات و رزرو <i class="bi bi-chevron-left me-1"></i>
+                                                </a>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-muted"><i class="bi bi-geo-alt me-1"></i> تحویل:</span>
-                                        <span class="text-truncate text-end" style="max-width: 170px;">{{ car.pickup_address }}</span>
-                                    </div>
-                                </div>
-
-                                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                                    <div>
-                                        <span class="text-muted small">کرایه هر ۲۴ ساعت:</span>
-                                        <div class="fw-bold text-primary fs-5">{{ car.daily_price }} <span class="fs-6 small">تومان</span></div>
-                                    </div>
-                                    <a href="{% url 'fleet:car_detail' car.pk %}" class="btn btn-outline-primary fw-bold">
-                                        مشخصات و رزرو <i class="bi bi-chevron-left me-1"></i>
-                                    </a>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    {% else %}
+                        <div class="col-md-6">
+                            <div class="card card-custom h-100 overflow-hidden d-flex flex-column">
+                                <div class="position-relative" style="height: 220px; background-color: #f1f5f9;">
+                                    {% if car.image %}
+                                        <img src="{{ car.image.url }}" class="w-100 h-100 object-fit-cover" alt="{{ car.model_name }}">
+                                    {% else %}
+                                        <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                                            <i class="bi bi-car-front fs-1"></i>
+                                        </div>
+                                    {% endif %}
+                                    <span class="badge position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill fw-bold shadow-sm badge-status-{{ car.status|lower }}">
+                                        {{ car.get_status_display }}
+                                    </span>
+                                </div>
+
+                                <div class="card-body d-flex flex-column p-4 flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h5 class="fw-bold mb-0">{{ car.brand.name }} {{ car.model_name }}</h5>
+                                        <span class="badge bg-light text-dark border">{{ car.year }}</span>
+                                    </div>
+
+                                    <p class="text-muted small mb-3 flex-grow-1">
+                                        {{ car.features|truncatewords:14|default:"بیمه بدنه کامل، سلامت فنی تضمین‌شده و تحویل تمیز" }}
+                                    </p>
+
+                                    <div class="p-2 rounded bg-light mb-3 small">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="text-muted"><i class="bi bi-people me-1"></i> ظرفیت:</span>
+                                            <span class="fw-bold">{{ car.capacity }} نفر</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-muted"><i class="bi bi-geo-alt me-1"></i> تحویل:</span>
+                                            <span class="text-truncate text-end" style="max-width: 170px;">{{ car.pickup_address }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                        <div>
+                                            <span class="text-muted small">کرایه هر ۲۴ ساعت:</span>
+                                            <div class="fw-bold text-primary fs-5">{{ car.daily_price }} <span class="fs-6 small">تومان</span></div>
+                                        </div>
+                                        <a href="{% url 'fleet:car_detail' car.pk %}" class="btn btn-outline-primary fw-bold">
+                                            مشخصات و رزرو <i class="bi bi-chevron-left me-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
                 {% empty %}
                     <div class="col-12 py-5 text-center">
                         <div class="card card-custom p-5">
@@ -121,7 +179,7 @@
                             <h5 class="fw-bold">هیچ خودرویی با این مشخصات یافت نشد!</h5>
                             <p class="text-muted small">لطفاً فیلترهای جستجو را تغییر دهید یا همه خودروها را مشاهده فرمایید.</p>
                             <div>
-                                <a href="{% url 'fleet:car_list' %}" class="btn btn-primary px-4">مشاهده تمام خودروها</a>
+                                <a href="{% url 'fleet:car_list' %}?clear_filters=1" class="btn btn-primary px-4">مشاهده تمام خودروها</a>
                             </div>
                         </div>
                     </div>
@@ -129,5 +187,43 @@
             </div>
         </div>
     </div>
+
+    {% if recently_viewed_cars %}
+    <!-- Recently Viewed Cars (Session) -->
+    <section class="mt-5 pt-4 border-top">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold mb-0 d-flex align-items-center gap-2">
+                <i class="bi bi-clock-history text-primary"></i> خودروهای اخیراً مشاهده‌شده توسط شما
+            </h4>
+        </div>
+        <div class="row g-3">
+            {% for recent_car in recently_viewed_cars %}
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="card card-custom h-100 overflow-hidden">
+                        <div class="position-relative" style="height: 140px; background-color: #e2e8f0;">
+                            {% if recent_car.image %}
+                                <img src="{{ recent_car.image.url }}" class="w-100 h-100 object-fit-cover" alt="{{ recent_car.model_name }}">
+                            {% else %}
+                                <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                                    <i class="bi bi-car-front fs-2"></i>
+                                </div>
+                            {% endif %}
+                            <span class="badge position-absolute top-0 end-0 m-2 px-2 py-1 rounded-pill small badge-status-{{ recent_car.status|lower }}">
+                                {{ recent_car.get_status_display }}
+                            </span>
+                        </div>
+                        <div class="card-body p-3 d-flex flex-column">
+                            <h6 class="fw-bold mb-1">{{ recent_car.brand.name }} {{ recent_car.model_name }}</h6>
+                            <div class="text-primary fw-bold small mb-2">{{ recent_car.daily_price }} تومان / روز</div>
+                            <a href="{% url 'fleet:car_detail' recent_car.pk %}" class="btn btn-outline-primary btn-sm mt-auto w-100">
+                                مشاهده و رزرو
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
 </div>
 {% endblock %}
