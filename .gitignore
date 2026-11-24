@@ -24,6 +24,11 @@ desktop.ini
 media/
 !media/.gitkeep
 
+# Log files
+logs/*.log
+logs/*.log.*
+!logs/.gitkeep
+
 # IDE files
 .vscode/
 .idea/

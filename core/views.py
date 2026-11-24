@@ -1,8 +1,11 @@
+import logging
 from django.shortcuts import render
 from fleet.models import Car, CarBrand
 from fleet.utils import get_recently_viewed_cars
 from rentals.models import RentalContract
 from fleet.forms import CarSearchFilterForm
+
+logger = logging.getLogger('core')
 
 
 def home_view(request):
@@ -31,4 +34,10 @@ def home_view(request):
         'total_rentals_count': total_rentals_count,
         'search_form': search_form,
     }
+    logger.info(
+        "نمایش صفحه اصلی برای کاربر=%s | خودروهای آماده=%s | بازدید کوکی=%s",
+        request.user.username if request.user.is_authenticated else 'guest',
+        available_cars_count,
+        getattr(request, 'visit_count', 1),
+    )
     return render(request, 'core/home.html', context)

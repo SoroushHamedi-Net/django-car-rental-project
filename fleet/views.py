@@ -1,3 +1,4 @@
+import logging
 from datetime import date
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -7,6 +8,8 @@ from .forms import CarForm, CarStatusUpdateForm, CarSearchFilterForm, BrandForm
 from .utils import get_recently_viewed_cars
 from rentals.forms import RentalRequestForm
 
+logger = logging.getLogger('fleet')
+security_logger = logging.getLogger('security_audit')
 
 FILTER_PARAM_KEYS = ('brand', 'model_query', 'max_price', 'capacity', 'start_date', 'end_date')
 VIEW_MODE_COOKIE_MAX_AGE = 30 * 24 * 60 * 60  # 30 روز
@@ -65,6 +68,14 @@ def car_list_view(request):
         has_active_filters = any(serialized_filters.values())
         if has_filter_params:
             request.session['last_search_filters'] = serialized_filters
+            logger.info(
+                "جستجوی خودرو توسط کاربر=%s | فیلترها=%s | تعداد نتایج=%s",
+                request.user.username if request.user.is_authenticated else 'guest',
+                {k: v for k, v in serialized_filters.items() if v},
+                cars.count(),
+            )
+    elif form.is_bound:
+        logger.warning("پارامترهای جستجوی نامعتبر در لیست خودروها: %s", form.errors.as_json())
 
     # تعیین حالت نمایش (شبکه‌ای یا لیستی) از پارامتر URL یا کوکی مرورگر
     requested_view = request.GET.get('view')
@@ -132,6 +143,13 @@ def car_detail_view(request, pk):
         'similar_cars': similar_cars,
         'prefilled_dates': bool(initial_dates),
     }
+    logger.info(
+        "مشاهده جزییات خودرو ID=%s (%s %s) توسط کاربر=%s",
+        car.pk,
+        car.brand.name,
+        car.model_name,
+        request.user.username if request.user.is_authenticated else 'guest',
+    )
     return render(request, 'fleet/car_detail.html', context)
 
 
@@ -141,6 +159,7 @@ def manager_car_list_view(request):
     پنل مدیریت ناوگان برای مدیر سامانه.
     """
     if not request.user.is_manager:
+        security_logger.warning("UNAUTHORIZED_FLEET_ACCESS | user=%s | view=manager_car_list", request.user.username)
         messages.error(request, 'دسترسی غیرمجاز: این بخش مخصوص مدیران سامانه است.')
         return redirect('fleet:car_list')
 
@@ -165,6 +184,7 @@ def car_create_view(request):
     نمای افزودن خودرو جدید به ناوگان توسط مدیر سامانه.
     """
     if not request.user.is_manager:
+        security_logger.warning("UNAUTHORIZED_FLEET_ACCESS | user=%s | view=car_create", request.user.username)
         messages.error(request, 'دسترسی غیرمجاز: تنها مدیران مجاز به تعریف خودرو هستند.')
         return redirect('fleet:car_list')
 
@@ -174,9 +194,18 @@ def car_create_view(request):
             car = form.save(commit=False)
             car.created_by = request.user
             car.save()
+            logger.info(
+                "افزودن خودرو جدید ID=%s (%s %s) با نرخ %s توسط مدیر '%s'",
+                car.pk,
+                car.brand.name,
+                car.model_name,
+                car.daily_price,
+                request.user.username,
+            )
             messages.success(request, f'خودرو {car.brand.name} {car.model_name} با موفقیت به ناوگان افزوده شد.')
             return redirect('fleet:manager_car_list')
         else:
+            logger.warning("خطا در ثبت خودرو جدید توسط مدیر '%s': %s", request.user.username, form.errors.as_json())
             messages.error(request, 'لطفاً خطاهای فرم ثبت خودرو را برطرف کنید.')
     else:
         form = CarForm()
@@ -190,6 +219,7 @@ def car_update_view(request, pk):
     نمای ویرایش اطلاعات خودرو توسط مدیر سامانه.
     """
     if not request.user.is_manager:
+        security_logger.warning("UNAUTHORIZED_FLEET_ACCESS | user=%s | view=car_update | car_id=%s", request.user.username, pk)
         messages.error(request, 'دسترسی غیرمجاز: تنها مدیران مجاز به ویرایش خودرو هستند.')
         return redirect('fleet:car_list')
 
@@ -198,10 +228,19 @@ def car_update_view(request, pk):
     if request.method == 'POST':
         form = CarForm(request.POST, request.FILES, instance=car)
         if form.is_valid():
-            form.save()
+            updated_car = form.save()
+            logger.info(
+                "ویرایش خودرو ID=%s (%s %s) توسط مدیر '%s' | فیلدهای تغییریافته=%s",
+                updated_car.pk,
+                updated_car.brand.name,
+                updated_car.model_name,
+                request.user.username,
+                form.changed_data,
+            )
             messages.success(request, f'اطلاعات خودرو {car.brand.name} {car.model_name} با موفقیت به‌روزرسانی شد.')
             return redirect('fleet:manager_car_list')
         else:
+            logger.warning("خطا در ویرایش خودرو ID=%s توسط مدیر '%s': %s", car.pk, request.user.username, form.errors.as_json())
             messages.error(request, 'لطفاً خطاهای فرم ویرایش را برطرف کنید.')
     else:
         form = CarForm(instance=car)
@@ -215,6 +254,7 @@ def car_status_change_view(request, pk):
     تغییر سریع وضعیت خودرو توسط مدیر.
     """
     if not request.user.is_manager:
+        security_logger.warning("UNAUTHORIZED_FLEET_ACCESS | user=%s | view=car_status_change | car_id=%s", request.user.username, pk)
         messages.error(request, 'دسترسی غیرمجاز.')
         return redirect('fleet:car_list')
 
@@ -223,10 +263,26 @@ def car_status_change_view(request, pk):
     if request.method == 'POST':
         new_status = request.POST.get('status')
         if new_status in dict(Car.STATUS_CHOICES):
+            old_status = car.status
             car.status = new_status
             car.save()
+            logger.info(
+                "تغییر وضعیت خودرو ID=%s (%s %s) توسط مدیر '%s': %s -> %s",
+                car.pk,
+                car.brand.name,
+                car.model_name,
+                request.user.username,
+                old_status,
+                new_status,
+            )
             messages.success(request, f'وضعیت خودرو به «{car.get_status_display()}» تغییر یافت.')
         else:
+            logger.warning(
+                "درخواست تغییر وضعیت نامعتبر '%s' برای خودرو ID=%s توسط مدیر '%s'",
+                new_status,
+                car.pk,
+                request.user.username,
+            )
             messages.error(request, 'وضعیت نامعتبر ارسال شده است.')
 
     return redirect('fleet:manager_car_list')
@@ -238,6 +294,7 @@ def brand_create_view(request):
     نمای افزودن برند جدید خودرو توسط مدیر.
     """
     if not request.user.is_manager:
+        security_logger.warning("UNAUTHORIZED_FLEET_ACCESS | user=%s | view=brand_create", request.user.username)
         messages.error(request, 'دسترسی غیرمجاز.')
         return redirect('fleet:car_list')
 
@@ -245,9 +302,11 @@ def brand_create_view(request):
         form = BrandForm(request.POST, request.FILES)
         if form.is_valid():
             brand = form.save()
+            logger.info("ثبت برند جدید '%s' (ID=%s) توسط مدیر '%s'", brand.name, brand.pk, request.user.username)
             messages.success(request, f'برند {brand.name} با موفقیت در سیستم ثبت گردید.')
             return redirect('fleet:manager_car_list')
         else:
+            logger.warning("خطا در ثبت برند جدید توسط مدیر '%s': %s", request.user.username, form.errors.as_json())
             messages.error(request, 'خطایی در ثبت برند رخ داده است.')
     else:
         form = BrandForm()
